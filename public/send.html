@@ -1,0 +1,116 @@
+<html lang="en" data-theme="garden">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles/main_styles.css" />
+    <title>Send To Device</title>
+  </head>
+  <body>
+    <div class="bg-blue-200 m-auto rounded-md">
+      <h1 class="m-[0rem] text-center text-2xl p-2 font-bold">
+        <a href="./index.html">Data Shifter</a>
+      </h1>
+    </div>
+    <div
+      class="flex flex-1 flex-col h-100 m-4 md:m-8 lg:m-12 items-center justify-center-safe"
+    >
+      <div class="card card-md  md:card:md lg:card-lg xl:card-xl bg-white">
+        <div class="card-body items-center">
+          <h2 class="card-title text-xl mt-2">Send To Other Device (PC/Mobile)</h2>
+          <p class="mt-2">
+            Make sure your both devices conected to same WIFI network or One
+            device connected with hotspot of other device. Like your PC
+            connected with your Mobile Hotspot .
+          </p>
+          <div class="card-actions mt-2">
+            <input
+              type="file"
+              multiple
+              id="file-input"
+              class="input  file-input file-input-info  active:file-input-success"
+            />
+          </div>
+          <div class="w-full" id="show-files">
+
+          </div>
+          <!--
+          <div
+            class="flex flex-col bg-gray-200 w-full p-2 border border-gray-300 rounded-lg"
+          >
+            <div class="flex justify-between items-center bg-white rounded-lg p-1">
+              <h3 class="">Watch-ImranKhan_the=playerwith-best-ksdkj.mp4 </h3>
+              <a class=" btn btn-secondary ">good</a>
+            </div>
+            <div class="flex flex-row flex-1 justify-items-center items-center">
+              <progress class=" progress bg-green-200 h-4 text-green-600 mr-4 "></progress>
+              <p class="w-max p-2"> 50% </p>
+              <p class="w-max ml-auto p-2 ">34.23_MB/s</p>
+              <p class="p-2"><span>13s</span>_Left</p>
+            </div>
+          </div>
+        -->
+          
+        </div>
+      </div>
+    </div>
+    <script>
+      const file_input = document.getElementById('file-input');
+      const show_files = document.getElementById('show-files');
+      file_input.onchange = show;
+
+      function show() {
+        Array.from(file_input.files).map((file, index) => {
+        console.log(file)
+        const oneFileSet = document.createElement('div');
+        oneFileSet.className = "flex flex-col  w-full p-2 mt-3 border border-blue-200 rounded-lg bg-gray-200";
+        const nameRow = document.createElement('div')
+        nameRow.className = "flex justify-between items-center rounded-lg p-1 pr-2";
+
+        const name = document.createElement('h3');
+        let fileSize = (file.size/(1024*1024)).toFixed(2) + "MB";
+        if (file.size/(1024*1024) < 1 ) fileSize = (file.size/1024).toFixed(2) + "KB"
+        name.textContent = `${file.name} (${fileSize})`;
+
+        const sdBtn = document.createElement('button');
+        sdBtn.className = "btn bg-blue-400 border-0 hover:bg-blue-500 hover:border-blue-600 hover:border-1"
+        sdBtn.textContent = 'Send';
+        
+        
+
+        const pRow = document.createElement('div');
+        pRow.className = " flex-row flex-1 justify-items-center items-center";
+        pRow.style.display = "none"
+        const pbar = document.createElement('progress');
+        pbar.max = 100;
+        pbar.value = 30;
+        pbar.className = " progress bg-green-200 h-4 text-green-600 mr-4";
+        const percent = document.createElement("p");
+        percent.className = " p-2 " ; percent.textContent = '50%';
+        const speed = document.createElement("p");
+        speed.className = "p-2"; speed.textContent = "10.00MB/s"
+
+        pRow.appendChild(pbar); pRow.appendChild(percent) ; pRow.appendChild(speed)
+
+        nameRow.appendChild(name);
+        nameRow.appendChild(sdBtn);
+        oneFileSet.appendChild(nameRow);
+        oneFileSet.appendChild(pRow);
+        show_files.appendChild(oneFileSet);
+
+        sdBtn.onclick = () => {
+          if (pRow.style.display === 'none') {
+            pRow.style.display = "flex";
+            oneFileSet.style.backgroundColor = "white"
+          } else {
+            pRow.style.display = "none";
+            oneFileSet.style.backgroundColor = "gray"
+          }
+          
+        }
+      })
+        
+      }
+      
+    </script>
+  </body>
+</html>
