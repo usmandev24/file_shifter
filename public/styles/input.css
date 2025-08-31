@@ -5,5 +5,5 @@
 
 
 @plugin "daisyui" {
-  themes : garden --default
+  themes : garden, dark , light, forest
 }

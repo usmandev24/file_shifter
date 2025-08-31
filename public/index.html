@@ -1,4 +1,4 @@
-<html lang="en" data-theme="garden">
+<html lang="en" data-theme="dark" >
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -6,15 +6,26 @@
     <title>Data Shifter Home</title>
   </head>
   <body>
-    <div class="bg-blue-200 m-auto">
-      <h1 class="m-[0rem] text-center text-2xl p-2 font-bold" ><a href="./index.html"
+    <div class="flex flex-1 justify-between items-center border-b border-base-300 m-auto">
+      <h1 class=" text-xl p-2  font-bold" ><a href="./index.html"
         >Data Shifter</a
       ></h1>
+      
+      <div class=" dropdown dropdown-bottom dropdown-end ">
+        <div role="button" tabindex="0" class=" btn text-xl w-8 h-12 mr-4 rotate-90">
+          |||
+        </div>
+        <ul class="dropdown-content bg-base-100 border border-gray-500 rounded-lg menu menu-vertical w-32 p-2 m-2" >
+          <li class=""><a class="btn mb-1" href="send.html">Send</a></li>
+          <li class=""><a class="btn mb-1 " href="send.html">Recieve</a></li>
+          <li class=""><a class="btn-link m-1 " href="send.html">About</a></li>
+        </ul>
+      </div>
     </div>
     <div
       class="flex flex-1 flex-col h-100 m-4 md:m-8 lg:m-12 items-center justify-center-safe"
     >
-      <div class="card card-md md:card:md lg:card-lg xl:card:xl  bg-white">
+      <div class="card card-md md:card:md lg:card-lg xl:card:xl  bg-base-300">
         <div class="card-body items-center">
           <h2 class="card-title text-xl mt-2">Send and Recieve Data</h2>
           <p class="mt-2 ">
@@ -23,8 +34,8 @@
             connected with your Mobile Hotspot .
           </p>
           <div class="card-actions mt-2">
-            <a class="btn btn-info md:btn-lg" href="./send.html">Send</a>
-            <a class="btn btn-info md:btn-lg" href="">Recieve</a>
+            <a class="btn btn-primary w-24" href="./send.html">Send</a>
+            <a class="btn btn-primary w-24" href="">Recieve</a>
           </div>
         </div>
       </div>
