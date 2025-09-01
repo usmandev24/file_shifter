@@ -2,31 +2,40 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="styles/main_styles.css" />
+    <link rel="stylesheet" href="/public/styles/main_styles.css" />
     <title>Send To Device</title>
   </head>
   <body>
-    <div class="flex flex-1 justify-between items-center border-b border-base-300 m-auto">
-      <h1 class=" text-xl p-2  font-bold" ><a href="./index.html"
-        >Data Shifter</a
-      ></h1>
-      
-      <div class=" dropdown dropdown-bottom dropdown-end ">
-        <div role="button" tabindex="0" class=" btn text-xl w-8 h-12 mr-4 rotate-90">
+    <div
+      class="flex flex-1 justify-between items-center border-b border-base-300 m-auto"
+    >
+      <div class="w-[2rem]"></div>
+      <h1 class="text-xl lg:text-2xl p-2 ml-2 font-bold">
+        <a href="./index.html">Data Shifter</a>
+      </h1>
+
+      <div class="dropdown dropdown-end dropdown-bottom">
+        <div
+          role="button"
+          tabindex="0"
+          class="btn text-xl w-8 h-12 mr-4 rotate-90"
+        >
           |||
         </div>
-        <ul class="dropdown-content bg-base-100 border border-gray-500 rounded-lg menu menu-vertical w-32 p-2 m-2" >
+        <ul
+          class="dropdown-content bg-base-100 border border-gray-500 rounded-lg menu menu-vertical w-32 z-10 p-2"
+        >
           <li class=""><a class="btn mb-1" href="send.html">Send</a></li>
-          <li class=""><a class="btn mb-1 " href="send.html">Recieve</a></li>
-          <li class=""><a class="btn-link m-1 " href="send.html">About</a></li>
+          <li class=""><a class="btn mb-1" href="send.html">Recieve</a></li>
+          <li class=""><a class="btn-link m-1" href="send.html">About</a></li>
         </ul>
       </div>
     </div>
     <div
-      class="flex flex-1 flex-col h-100 m-4 md:m-8 lg:m-12 items-center justify-center-safe"
+      class="flex flex-1 flex-col h-100 m-2 md:m-12 lg:m-16 items-center justify-center-safe"
     >
       <div class="card card-md  md:card:md lg:card-lg xl:card-xl bg-base-300">
-        <div class="card-body items-center">
+        <div class="card-body items-center p-4 md:p-8">
           <h2 class="card-title text-xl mt-2">Send To Other Device (PC/Mobile)</h2>
           <p class="mt-2">
             Make sure your both devices conected to same WIFI network or One
@@ -94,7 +103,7 @@
         const pbar = document.createElement('progress');
         pbar.max = 100;
         pbar.value = 30;
-        pbar.className = " progress progress-primary  h-4  mr-4";
+        pbar.className = " progress progress-primary  h-3 md:h-4  mr-4";
         const percent = document.createElement("p");
         percent.className = " p-2 " ; percent.textContent = '50%';
         const speed = document.createElement("p");
