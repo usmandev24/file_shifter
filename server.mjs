@@ -3,6 +3,7 @@ import * as fs from "node:fs";
 import path from 'node:path';
 import * as util from 'node:util';
 import { checkDevice, getIpv4 } from './model/checkDevice.mjs';
+import { varifyDir } from './model/file-stat.mjs';
 
 ;
 
@@ -11,7 +12,7 @@ let Routs = [];
 
 const server = http.createServer(async (req, res) => {
   const isServer = checkDevice(req.socket.address().address);
-  console.log(isServer);
+  
   for (let rout of Routs) {
     if (req.url === rout.url) {
       await rout.handler(req, res, isServer);
@@ -29,21 +30,37 @@ addRout('/', async (req, res, isServer) => {
   res.writeHead(200, 'Ok', {
     'content-type': 'text/html'
   })
-  if (isServer) await serveStatic(req, res, 'public', 'index.html');
-  else await serveStatic(req, res, 'public', 'o-index.html')
+  if (isServer) await serveStatic(req, res, 'public', 'server-index.html');
+  else await serveStatic(req, res, 'public', 'index.html')
   res.end();
 })
 addRout('/send', async (req, res, isServer) => {
-  if (!isServer) {
+  if (true) {
     res.writeHead(200, 'Ok', {
       'content-type': 'text/html'
     })
-    await serveStatic(req, res, 'public', 'o-send.html');
+    await serveStatic(req, res, 'public', 'send.html');
     res.end();
   }
   else handle404(req, res)
 
 })
+
+addRout('/send-to-server', async (req, res, isServer) => {
+
+  await varifyDir('temp','to-receive');
+  const file_name= req.headers['file-name']
+  const writePath = path.join('temp', 'to-receive',file_name )
+  const stream = fs.createWriteStream(writePath)
+  req.on('data', (chnk) => {
+    stream.write(chnk);
+  })
+  req.on('end', async () => {
+    res.end('Completed')
+    console.log(`Received "${file_name}" ____` + "Saved to :"+writePath );
+  })
+})
+
 function handle404(req, res) {
   res.writeHead(404, '404', {
     'content-type': 'text/html'
