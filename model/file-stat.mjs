@@ -4,7 +4,13 @@ import * as os from 'os'
 
 export async function varifyDir(...dirPath) {
   const safePath = path.join(...dirPath);
-  const status = await fs.promises.stat(safePath, {"throwIfNoEntry": false});
+  let status;
+  try {
+    status = await fs.promises.stat(safePath, {"throwIfNoEntry": false});
+    
+  } catch (error) {
+    status = undefined;
+  } 
   if (!status) {
     const newDir =await fs.promises.mkdir(safePath, {recursive: true})
   }
@@ -12,6 +18,18 @@ export async function varifyDir(...dirPath) {
 }
 export async function chkStat(...dirPath) {
   const safePath = path.join(...dirPath);
-  const status = await fs.promises.stat(safePath, {"throwIfNoEntry": false});
-  return status;
+  let status;
+  try {
+    status = await fs.promises.stat(safePath, {"throwIfNoEntry": false});
+    return status;
+  } catch (error) {
+    return undefined;
+  } 
+}
+export async function moveFile(oldpath = [], newPath = []) {
+  await varifyDir(newPath.pop());
+  let oldSafePath = path.join(...oldpath)
+   let newSafePath = path.join(...newPath)
+  const file = await fs.promises.rename(oldSafePath, newSafePath);
+  return file;
 }

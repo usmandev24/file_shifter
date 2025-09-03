@@ -3,7 +3,7 @@ import * as fs from "node:fs";
 import path from 'node:path';
 import * as util from 'node:util';
 import { checkDevice, getIpv4 } from './model/checkDevice.mjs';
-import { varifyDir } from './model/file-stat.mjs';
+import { chkStat, moveFile, varifyDir } from './model/file-stat.mjs';
 
 ;
 
@@ -12,7 +12,7 @@ let Routs = [];
 
 const server = http.createServer(async (req, res) => {
   const isServer = checkDevice(req.socket.address().address);
-  
+
   for (let rout of Routs) {
     if (req.url === rout.url) {
       await rout.handler(req, res, isServer);
@@ -48,16 +48,48 @@ addRout('/send', async (req, res, isServer) => {
 
 addRout('/send-to-server', async (req, res, isServer) => {
 
-  await varifyDir('temp','to-receive');
-  const file_name= req.headers['file-name']
-  const writePath = path.join('temp', 'to-receive',file_name )
-  const stream = fs.createWriteStream(writePath)
+  await varifyDir('temp', 'to-receive');
+  let { filename, filesize, lastmodified, chnksize, index, islast } = req.headers;
+  filesize = Number(filesize); chnksize = Number(chnksize); index = Number(index);
+
+  const writePath = path.join('temp', 'to-receive', `last${lastmodified}s${filesize}_${filename}`)
+  let status;
+  let stream;
+  if (index === 0) {
+    status = await chkStat(writePath);
+    if (status) {
+      let resumeIndex = Math.floor(status.size / chnksize);
+      if (resumeIndex != 0) {
+        res.writeHead(206, "ok", {
+          "index": resumeIndex
+        })
+        res.end("Resumed");
+        return;
+      } else stream = fs.createWriteStream(writePath);
+    } else {
+      stream = fs.createWriteStream(writePath)
+    }
+  } else {
+    stream = fs.createWriteStream(writePath, { flags: "r+", start: index * chnksize })
+  }
+  res.writeHead(206, "ok", {
+    "index": String(index + 1)
+  })
   req.on('data', (chnk) => {
     stream.write(chnk);
   })
   req.on('end', async () => {
-    res.end('Completed')
-    console.log(`Received "${file_name}" ____` + "Saved to :"+writePath );
+    if (islast === "true") {
+      res.end("Completed");
+      let movePath = ['data', 'received', `${filename}`]
+      let readstream = fs.createReadStream(writePath);
+      let moveWriteStream = fs.createWriteStream(path.join(...movePath));
+      readstream.pipe(moveWriteStream);
+      readstream.on('end', async () => {
+        await fs.promises.unlink(writePath);
+      })
+    } else
+      res.end(String(index + 1));
   })
 })
 
