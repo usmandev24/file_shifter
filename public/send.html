@@ -35,7 +35,7 @@
     <div
       class="flex flex-1 flex-col h-100 m-2 md:m-12 lg:m-16 items-center justify-center-safe"
     >
-      <div class="card card-md md:card:md lg:card-lg xl:card-xl bg-base-300">
+      <div class="card card-md md:card:md lg:card-lg xl:card-xl bg-base-300 ">
         <div class="card-body items-center p-4 md:p-8">
           <h2 class="card-title text-xl mt-3">
             Send To Other Device (PC/Mobile)
@@ -56,7 +56,8 @@
           <div class="w-full" id="show-files"></div>
           <div
             style="display: none"
-            class="break-words btn-primary m-auto"
+            class="break-words btn-primary m-auto flex-col align-middle
+             text-secondary, text-primary, text-info, progress-info, progress-error, progress-secondary, alert-error"
           ></div>
         </div>
       </div>
@@ -73,7 +74,7 @@
           console.log(file);
           const oneFileSet = document.createElement("div");
           oneFileSet.className =
-            "flex flex-col  w-full p-2 mt-3 border border-base-100 rounded-lg bg-base-200";
+            "flex flex-col gap-1  w-full p-2 mt-3 border border-base-100 rounded-lg bg-base-200";
           const nameRow = document.createElement("div");
           nameRow.className =
             "flex justify-between break-all items-center rounded-lg p-1 pr-2";
@@ -85,12 +86,11 @@
           name.textContent = `${file.name} (${fileSize})`;
 
           const sdBtn = document.createElement("button");
-          sdBtn.className = "btn btn-sm md:btn-md lg:btn-lg btn-secondary";
+          sdBtn.className = "btn btn-sm md:btn-md  btn-outline text-primary";
           sdBtn.textContent = "Send";
 
           const pRow = document.createElement("div");
-          pRow.className = " flex-row flex-1 justify-items-center items-center";
-          pRow.style.display = "none";
+          pRow.className = "flex flex-row justify-center items-center";
 
           const pbar = document.createElement("progress");
           pbar.max = 100;
@@ -112,11 +112,10 @@
           nameRow.appendChild(name);
           nameRow.appendChild(sdBtn);
           oneFileSet.appendChild(nameRow);
-          oneFileSet.appendChild(pRow);
 
           const infoAltert = el("div", {
             className: "alert alert-info alert-soft alert-horizontal",
-            textContent : "Uploading file to Server"
+            textContent: "Uploading file to Server",
           });
           let cancleBtnCliked = false;
           const cancleBtn = el(
@@ -124,8 +123,8 @@
             {
               className: "btn btn-dash btn-sm md:btn-md text-error",
               onclick: () => {
-                
-                 cancleBtnCliked = true;sdBtn.click();
+                cancleBtnCliked = true;
+                sdBtn.click();
               },
             },
             "Cancle"
@@ -134,37 +133,67 @@
           const infoRow = el(
             "div",
             {
-              className: "hidden flex-row justify-center gap-4 items-center",
+              className: "flex  flex-row justify-center gap-4 items-center",
             },
             infoAltert,
             el("div", {}, cancleBtn)
           );
-          oneFileSet.appendChild(infoRow);
+          const pbarInfoDiv = el(
+            "div",
+            {
+              className:
+                " flex-col  justify-start align-start transition-all  ease-in-out duration-[500ms] scale-y-100",
+            },
+            pRow,
+            infoRow
+          );
+          pbarInfoDiv.style.display = 'none'
+          let pbarInfoDivheight ;
+          oneFileSet.appendChild(pbarInfoDiv);
           show_files.appendChild(oneFileSet);
-
+          name.onclick = () => {
+            console.log(pbarInfoDiv.style.height, pbarInfoDivheight)
+            if (pbarInfoDiv.style.height === "0px") {
+              pbarInfoDiv.classList.replace("scale-y-0", "scale-y-100");
+              pbarInfoDiv.style.height = pbarInfoDivheight;
+            } else {
+              pbarInfoDiv.classList.replace("scale-y-100", "scale-y-0");
+              pbarInfoDiv.style.height = "0px";
+            }
+          };
           sdBtn.onclick = onEachSdBtn;
           let xhr;
           let Paused = false;
           let cancled = false;
           async function onEachSdBtn() {
             let chnkSize = 20 * 1024 * 1024;
-            if (file.size < 100 * 1024 * 1024) chnkSize = 5* 1024 * 1024;
+            if (file.size < 100 * 1024 * 1024) chnkSize = 5 * 1024 * 1024;
             const totalChnk = Math.ceil(file.size / chnkSize);
             console.log(totalChnk);
-            infoRow.style.display = "flex"
+            //Show pbar , info'
+            pbarInfoDiv.style.display = "flex"
+            pbarInfoDiv.style.height = pbarInfoDiv.getBoundingClientRect().height+'px';
+            pbarInfoDivheight = pbarInfoDiv.getBoundingClientRect().height+'px';
+            console.log(pbarInfoDivheight)
             if (
               (sdBtn.textContent === "Send" && !cancleBtnCliked) ||
-              (sdBtn.textContent === "Resume" && !cancleBtnCliked) ||
-              (sdBtn.textContent === "Retry" && !cancleBtnCliked)
+              (sdBtn.textContent === "Resume" && !cancleBtnCliked)
             ) {
               let index = 0;
               xhr = new XMLHttpRequest();
-              for (; index < totalChnk;) {
-                if(cancled && !sdBtn.textContent==="Retry" || Paused && sdBtn.textContent != "Resume") break;
-                Paused = false; cancled = false;
+              if (sdBtn.textContent === "Resume") Paused = false;
+              for (; index < totalChnk; ) {
+                if (cancled || Paused) {
+                  break;
+                }
+                Paused = false;
 
-                let lastPart = false; console.log(index);
-                const filePart = file.slice(index*chnkSize, (index + 1) * chnkSize);
+                let lastPart = false;
+                console.log(index);
+                const filePart = file.slice(
+                  index * chnkSize,
+                  (index + 1) * chnkSize
+                );
                 if (index + 1 === totalChnk) lastPart = true;
                 let resevedIndex = await sendFile(
                   file,
@@ -178,28 +207,43 @@
                   speed,
                   infoAltert,
                   cancleBtn,
+                  pbarInfoDiv,
                   chnkSize,
                   totalChnk,
                   index,
-                  lastPart,
+                  lastPart
                 );
-                
+
                 index = resevedIndex;
               }
             } else if (cancleBtnCliked) {
-              
               cancleBtn.disabled = true;
-              sdBtn.textContent = 'Retry';
-              infoAltert.textContent = "Canceled! Do not worry You can Retry.";
-              infoAltert.classList.replace("alert-info", "alert-warning")
-              cancleBtnCliked = false;
+              sdBtn.textContent = "Canceled";
+              sdBtn.classList.remove("text-primary", "text-info");
+              sdBtn.classList.add("text-warning");
+
               cancled = true;
+              setTimeout(() => {
+                pbarInfoDiv.classList.replace("scale-y-100", "scale-y-0");
+                pbarInfoDiv.style.height = 0;
+                console.log(pbarInfoDivheight);
+              }, 1000);
+              sdBtn.disabled = true;
+              allsdBtns.filter((v, i) => {
+                if (i != index) return v;
+              });
+              allSendFunctions.filter((v, i) => {
+                if (i != index) return v;
+              });
               await cancelSending(xhr);
-              console.log('cancelsd')
-            } else if (sdBtn.textContent === 'Pause' ) {
+              console.log("canceled");
+            } else if (sdBtn.textContent === "Pause") {
               Paused = true;
               sdBtn.textContent = "Resume";
-              await cancelSending(xhr)
+              sdBtn.classList.replace("text-info", "text-secondary");
+              pbar.classList.replace("progress-info", "progress-secondary");
+              infoAltert.textContent = "Sending Paused...";
+              await cancelSending(xhr);
             }
           }
 
@@ -225,7 +269,8 @@
                 if (btn.textContent === "Completed") return true;
               });
               if (isSended) {
-                sendAllbtn.textContent = "All Above Files Sended Successfully";
+                sendAllbtn.textContent =
+                  "✅ All Above Files Sended Successfully";
                 sendAllbtn.className = "alert alert-success alert-soft";
                 sendAllbtn.role = "alert";
               }
@@ -248,6 +293,7 @@
         speedEle,
         infoAltert,
         cancleBtn,
+        pbarInfoDiv,
         chnkSize,
         totalChnk,
         index,
@@ -260,57 +306,85 @@
           xhr.setRequestHeader("filesize", file.size);
           xhr.setRequestHeader("lastmodified", file.lastModified);
           xhr.setRequestHeader("index", index);
-          xhr.setRequestHeader("chnksize", chnkSize );
-          xhr.setRequestHeader("islast", isLastChnk)
+          xhr.setRequestHeader("chnksize", chnkSize);
+          xhr.setRequestHeader("islast", isLastChnk);
 
           pRowDiv.style.display = "flex";
           xhr.onloadstart = () => {
             sendBtn.textContent = "Pause";
-            sendBtn.classList.replace("btn-secondary", "btn-info");
+            sendBtn.className = sendBtn.className.replace(
+              /text-primary|text-secondary/,
+              "text-info"
+            );
+            pbarEle.className = pbarEle.className.replace(
+              /progress-primary|progress-secondary/,
+              "progress-info"
+            );
+            infoAltert.textContent = "ℹ️Sending File to PC";
             cancleBtn.disabled = false;
           };
 
           const startTime = Date.now();
           xhr.upload.onprogress = (event) => {
             if (event.lengthComputable) {
-              let percent = ((index*chnkSize+event.loaded) / file.size) * 100;
+              let percent =
+                ((index * chnkSize + event.loaded) / file.size) * 100;
               pbarEle.value = percent;
               percentEle.textContent = percent.toFixed(1) + "%";
               let speed =
-                event.loaded / (1024 * 1024) / ((Date.now() - startTime) / 1000);
+                event.loaded /
+                (1024 * 1024) /
+                ((Date.now() - startTime) / 1000);
               speedEle.textContent = speed.toFixed(2) + "MB/s";
             }
           };
           xhr.onerror = () => {
-            pbarEle.classList.replace("progress-info", "progress-error");
             sendBtn.textContent = "Retry";
-            
-            sendBtn.className.replace(/btn-warning|btn-secondary|btn-info/, "btn-warning");
+            sendBtn.className = sendBtn.className.replace(
+              /text-primary|text-secondary|text-info/,
+              "text-error"
+            );
+            pbarEle.className = pbarEle.className.replace(
+              /progress-primary|progress-secondary|progress-info/,
+              "progress-error"
+            );
+            infoAltert.textContent = "Error While Sending";
+            infoAltert.classList.replace("alert-info", "alert-error");
+
             reject();
           };
           xhr.onabort = () => {
-            pbarEle.classList.replace("progress-info", "progress-warning");
             reslove(totalChnk);
           };
 
-          xhr.onload = () => { 
+          xhr.onload = () => {
             if (isLastChnk) {
-              pbarEle.classList.replace("progress-info", "progress-success");
-            sendBtn.textContent = xhr.responseText;
-            sendBtn.classList.replace("btn-warning", "btn-success");
-            infoAltert.textContent = "Successfully sended to Server";
-            cancleBtn.className = "hidden";
-            
-            reslove(xhr.responseText);
-            }
-            else {
+              sendBtn.className = sendBtn.className.replace(
+                /text-primary|text-secondary|text-info/,
+                "text-success"
+              );
+              pbarEle.className = pbarEle.className.replace(
+                /progress-primary|progress-secondary|progress-info/,
+                "progress-success"
+              );
+              sendBtn.textContent = xhr.responseText;
+              infoAltert.textContent = "✅ Successfully Sended";
+              infoAltert.classList.replace("alert-info", "alert-success");
+              cancleBtn.className = "hidden";
+              sendBtn.disabled = true;
+              reslove(xhr.responseText);
+              setTimeout(() => {
+                pbarInfoDiv.classList.replace("scale-y-100", "scale-y-0");
+                pbarInfoDiv.style.height = 0;
+              }, 2000);
+            } else {
               reslove(Number(xhr.getResponseHeader("index")));
             }
-            
           };
           xhr.send(filePart);
         });
-      } let xhr = new XMLHttpRequest(); 
+      }
+      let xhr = new XMLHttpRequest();
       async function cancelSending(xhr) {
         return new Promise((reslove, reject) => {
           xhr.abort();
