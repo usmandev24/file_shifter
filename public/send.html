@@ -8,7 +8,7 @@
 
   <body>
     <div
-      class="flex flex-1 justify-between items-center border-b border-base-300 m-auto"
+      class="flex flex-1  justify-between items-center border-b border-base-300 m-auto"
     >
       <div class="w-[2rem]"></div>
       <h1 class="text-xl lg:text-2xl p-2 ml-2 font-bold">
@@ -33,17 +33,17 @@
       </div>
     </div>
     <div
-      class="flex flex-1 flex-col h-100 m-2 md:m-12 lg:m-16 items-center justify-center-safe"
+      class="flex h-100 flex-col p-2 md:p-12 lg:p-16 items-center justify-center-safe"
     >
-      <div class="card card-md md:card:md lg:card-lg xl:card-xl bg-base-300 ">
+      <div class="card card-md md:card:md lg:card-lg xl:card-xl bg-base-300">
         <div class="card-body items-center p-4 md:p-8">
           <h2 class="card-title text-xl mt-3">
-            Send To Other Device (PC/Mobile)
+            Send Files To PC
           </h2>
           <p class="mt-3">
             Make sure your both devices conected to same WIFI network or One
             device connected with hotspot of other device. Like your PC
-            connected with your Mobile Hotspot .
+            connected with your Mobile Hotspot.
           </p>
           <div class="card-actions mt-3">
             <input
@@ -56,8 +56,7 @@
           <div class="w-full" id="show-files"></div>
           <div
             style="display: none"
-            class="break-words btn-primary m-auto flex-col align-middle
-             text-secondary, text-primary, text-info, progress-info, progress-error, progress-secondary, alert-error"
+            class="break-words btn-primary m-auto flex-col align-middle text-secondary, text-primary, text-info, progress-info, progress-error, progress-secondary, alert-error"
           ></div>
         </div>
       </div>
@@ -74,10 +73,10 @@
           console.log(file);
           const oneFileSet = document.createElement("div");
           oneFileSet.className =
-            "flex flex-col gap-1  w-full p-2 mt-3 border border-base-100 rounded-lg bg-base-200";
+            "flex flex-col gap-1  w-full p-2 mt-3 border border-base-200 rounded-lg bg-base-100";
           const nameRow = document.createElement("div");
           nameRow.className =
-            "flex justify-between break-all items-center rounded-lg p-1 pr-2";
+            "flex justify-between  break-all items-center ";
 
           const name = document.createElement("h3");
           let fileSize = (file.size / (1024 * 1024)).toFixed(2) + "MB";
@@ -87,7 +86,7 @@
 
           const sdBtn = document.createElement("button");
           sdBtn.className = "btn btn-sm md:btn-md  btn-outline text-primary";
-          sdBtn.textContent = "Send";
+          sdBtn.textContent = "Send"; 
 
           const pRow = document.createElement("div");
           pRow.className = "flex flex-row justify-center items-center";
@@ -147,37 +146,44 @@
             pRow,
             infoRow
           );
-          pbarInfoDiv.style.display = 'none'
-          let pbarInfoDivheight ;
+          pbarInfoDiv.style.display = "none";
+          let pbarInfoDivheight;
           oneFileSet.appendChild(pbarInfoDiv);
           show_files.appendChild(oneFileSet);
-          name.onclick = () => {
-            console.log(pbarInfoDiv.style.height, pbarInfoDivheight)
-            if (pbarInfoDiv.style.height === "0px") {
-              pbarInfoDiv.classList.replace("scale-y-0", "scale-y-100");
-              pbarInfoDiv.style.height = pbarInfoDivheight;
-            } else {
-              pbarInfoDiv.classList.replace("scale-y-100", "scale-y-0");
-              pbarInfoDiv.style.height = "0px";
+
+          nameRow.onclick = (event) => { event.stopPropagation()
+            if (pbarInfoDivheight) {
+              if (pbarInfoDiv.style.height === "0px") {
+                pbarInfoDiv.classList.replace("scale-y-0", "scale-y-100");
+                pbarInfoDiv.style.height = pbarInfoDivheight;
+              } else {
+                pbarInfoDiv.classList.replace("scale-y-100", "scale-y-0");
+                pbarInfoDiv.style.height = "0px";
+              }
             }
           };
+
           sdBtn.onclick = onEachSdBtn;
           let xhr;
           let Paused = false;
           let cancled = false;
-          async function onEachSdBtn() {
+          async function onEachSdBtn(event) {
+            event.stopPropagation()
             let chnkSize = 20 * 1024 * 1024;
             if (file.size < 100 * 1024 * 1024) chnkSize = 5 * 1024 * 1024;
             const totalChnk = Math.ceil(file.size / chnkSize);
             console.log(totalChnk);
             //Show pbar , info'
-            pbarInfoDiv.style.display = "flex"
-            pbarInfoDiv.style.height = pbarInfoDiv.getBoundingClientRect().height+'px';
-            pbarInfoDivheight = pbarInfoDiv.getBoundingClientRect().height+'px';
-            console.log(pbarInfoDivheight)
+            pbarInfoDiv.style.display = "flex";
+            pbarInfoDiv.style.height =
+              pbarInfoDiv.getBoundingClientRect().height + "px";
+            pbarInfoDivheight =
+              pbarInfoDiv.getBoundingClientRect().height + "px";
+            console.log(pbarInfoDivheight);
             if (
               (sdBtn.textContent === "Send" && !cancleBtnCliked) ||
-              (sdBtn.textContent === "Resume" && !cancleBtnCliked)
+              (sdBtn.textContent === "Resume" && !cancleBtnCliked) ||
+              (sdBtn.textContent === "Retry" && !cancleBtnCliked)
             ) {
               let index = 0;
               xhr = new XMLHttpRequest();
@@ -215,20 +221,29 @@
                 );
 
                 index = resevedIndex;
-              }
+              } 
             } else if (cancleBtnCliked) {
               cancleBtn.disabled = true;
+              cancleBtn.style.display = 'none'
               sdBtn.textContent = "Canceled";
-              sdBtn.classList.remove("text-primary", "text-info");
-              sdBtn.classList.add("text-warning");
-
+              sdBtn.className = sdBtn.className.replace(
+              /text-primary|text-error|text-info/,
+              "text-warning"
+            );
+              infoAltert.textContent = "⚠️ Canceled By User."
+              infoAltert.className = infoAltert.className.replace(/alert-info|alert-error/, "alert-warning")
+              pbar.className = pbar.className.replace(
+              /progress-primary|progress-error|progress-info/,
+              "progress-warning"
+            );
+              sdBtn.disabled = true;
               cancled = true;
               setTimeout(() => {
                 pbarInfoDiv.classList.replace("scale-y-100", "scale-y-0");
                 pbarInfoDiv.style.height = 0;
                 console.log(pbarInfoDivheight);
               }, 1000);
-              sdBtn.disabled = true;
+              
               allsdBtns.filter((v, i) => {
                 if (i != index) return v;
               });
@@ -240,9 +255,8 @@
             } else if (sdBtn.textContent === "Pause") {
               Paused = true;
               sdBtn.textContent = "Resume";
-              sdBtn.classList.replace("text-info", "text-secondary");
-              pbar.classList.replace("progress-info", "progress-secondary");
-              infoAltert.textContent = "Sending Paused...";
+              sdBtn.classList.replace("btn-dash", "btn-outline");
+              infoAltert.textContent = "▶ Sending Paused...";
               await cancelSending(xhr);
             }
           }
@@ -313,14 +327,19 @@
           xhr.onloadstart = () => {
             sendBtn.textContent = "Pause";
             sendBtn.className = sendBtn.className.replace(
-              /text-primary|text-secondary/,
+              /text-primary|text-secondary|text-error/,
               "text-info"
             );
+            sendBtn.className = sendBtn.className.replace(
+              /btn-outline/,
+              "btn-dash"
+            ); 
             pbarEle.className = pbarEle.className.replace(
-              /progress-primary|progress-secondary/,
+              /progress-primary|progress-error/,
               "progress-info"
             );
-            infoAltert.textContent = "ℹ️Sending File to PC";
+            infoAltert.innerHTML = `<span class="scale-150">⤒</span>Sending To PC...`
+            infoAltert.className = infoAltert.className.replace(/alert-error/, "alert-info")
             cancleBtn.disabled = false;
           };
 
@@ -344,11 +363,15 @@
               /text-primary|text-secondary|text-info/,
               "text-error"
             );
+            sendBtn.className = sendBtn.className.replace(
+              /btn-dash/,
+              "btn-outline"
+            );
             pbarEle.className = pbarEle.className.replace(
               /progress-primary|progress-secondary|progress-info/,
               "progress-error"
             );
-            infoAltert.textContent = "Error While Sending";
+            infoAltert.textContent = "🚫Error While Sending";
             infoAltert.classList.replace("alert-info", "alert-error");
 
             reject();
@@ -368,7 +391,7 @@
                 "progress-success"
               );
               sendBtn.textContent = xhr.responseText;
-              infoAltert.textContent = "✅ Successfully Sended";
+              infoAltert.textContent = "✅Successfully Sended";
               infoAltert.classList.replace("alert-info", "alert-success");
               cancleBtn.className = "hidden";
               sendBtn.disabled = true;
