@@ -4,8 +4,8 @@ import path from 'node:path';
 import * as util from 'node:util';
 import { checkDevice, getIpv4 } from './model/checkDevice.mjs';
 import { chkStat, moveFile, varifyDir } from './model/file-stat.mjs';
+import {serveFolder} from "./model/serveFolder.mjs"
 
-;
 
 export const port = 4000
 let Routs = [];
@@ -21,7 +21,7 @@ const server = http.createServer(async (req, res) => {
   }
   handle404(req, res);
 })
-
+await serveFolder("public","js")
 addRout('/public/styles/main_styles.css', async (req, res) => {
   await serveStatic(req, res, 'public', 'styles', 'main_styles.css');
 })
@@ -45,20 +45,30 @@ addRout('/send', async (req, res, isServer) => {
   else handle404(req, res)
 
 })
+addRout('/server-receive', async (req, res, isServer) => {
+  if (isServer) {
+    res.writeHead(200, 'Ok', {
+      'content-type': 'text/html'
+    })
+    await serveStatic(req, res, 'public', 'server-receive.html');
+    res.end();
+  }
+  else handle404(req, res)
 
+} )
 addRout('/send-to-server', async (req, res, isServer) => {
 
   await varifyDir('temp', 'to-receive');
-  let { filename, filesize, lastmodified, chnksize, index, islast } = req.headers;
-  filesize = Number(filesize); chnksize = Number(chnksize); index = Number(index);
+  let { filename, filesize, lastmodified, chunksize, index, islast } = req.headers;
+  filesize = Number(filesize); chunksize = Number(chunksize); index = Number(index);
 
-  const writePath = path.join('temp', 'to-receive', `last${lastmodified}s${filesize}_${filename}`)
+  const writePath = path.join('temp', 'to-receive', `${lastmodified}-${filesize}_${filename}`)
   let status;
   let stream;
   if (index === 0) {
     status = await chkStat(writePath);
     if (status) {
-      let resumeIndex = Math.floor(status.size / chnksize);
+      let resumeIndex = Math.floor(status.size / chunksize);
       if (resumeIndex != 0) {
         res.writeHead(206, "ok", {
           "index": resumeIndex
@@ -70,13 +80,13 @@ addRout('/send-to-server', async (req, res, isServer) => {
       stream = fs.createWriteStream(writePath)
     }
   } else {
-    stream = fs.createWriteStream(writePath, { flags: "r+", start: index * chnksize })
+    stream = fs.createWriteStream(writePath, { flags: "r+", start: index * chunksize })
   }
   res.writeHead(206, "ok", {
     "index": String(index + 1)
   })
-  req.on('data', (chnk) => {
-    stream.write(chnk);
+  req.on('data', (chunk) => {
+    stream.write(chunk);
   })
   req.on('end', async () => {
     if (islast === "true") {
@@ -111,11 +121,11 @@ function handle404(req, res) {
     `)
 }
 
-function addRout(url, handler) {
+export function addRout(url, handler) {
   Routs.push({ url, handler })
 }
 
-async function serveStatic(req, res, ...filePath) {
+export async function serveStatic(req, res, ...filePath) {
   const safePath = path.join(...filePath);
   return new Promise((resolve, reject) => {
     const stream = fs.createReadStream(safePath);
