@@ -1,5 +1,5 @@
 {
-  "name": "data-shifter",
+  "name": "file_shifter",
   "version": "0.0.1",
   "description": "Share files semlessly between devices connected with same local network",
   "main": "server.mjs",

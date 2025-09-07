@@ -220,12 +220,6 @@ FileTransfer.prototype.onCancelBtn = async function (event,index, allSendBtns, a
     ui.sendBtn.disabled = true;
     state.canceled = true;
     this.hideInfo_Div(1000)
-    allSendBtns = allSendBtns.filter((v, i) => {
-      if (i != index) return v;
-    });
-    allSendFunctions = allSendFunctions.filter((v, i) => {
-      if (i != index) return v;
-    });
     await cancelSending(state.xhr);
     console.log("canceled");
   
@@ -233,13 +227,6 @@ FileTransfer.prototype.onCancelBtn = async function (event,index, allSendBtns, a
 FileTransfer.prototype.attachEvents = function () {
   const ui = this.ui;
   const state = this.state;
-  ui.cancelBtn.onclick = (event) => {
-    event.stopPropagation();
-    state.cancelBtnCliked = true;
-    if (state.cancelBtnCliked) {
-
-    }
-  }
   
   ui.sendBtn.onclick = (event) => {
     this.OnSendBtn(event)
