@@ -1,143 +1,21 @@
 import * as http from 'node:http';
-import * as fs from "node:fs";
-import path from 'node:path';
-import * as util from 'node:util';
 import { checkDevice, getIpv4 } from './model/checkDevice.mjs';
-import { chkStat, moveFile, varifyDir } from './model/file-stat.mjs';
-import {serveFolder} from "./model/serveFolder.mjs"
+import { allRoutes } from './routes/index.mjs';
+import { handle404 } from './routes/mainRoutes.mjs';
 
-
+console.log(allRoutes)
 export const port = 4000
-let Routs = [];
-
-const server = http.createServer(async (req, res) => {
+export const server = http.createServer(async (req, res) => {
   const isServer = checkDevice(req.socket.address().address);
 
-  for (let rout of Routs) {
-    if (req.url === rout.url) {
-      await rout.handler(req, res, isServer);
+  for (let route of allRoutes) {
+    if (req.url === route.url) {
+      await route.handler(req, res, isServer);
       return;
     }
   }
   handle404(req, res);
 })
-await serveFolder("public","js")
-addRout('/public/styles/main_styles.css', async (req, res) => {
-  await serveStatic(req, res, 'public', 'styles', 'main_styles.css');
-})
-
-addRout('/', async (req, res, isServer) => {
-  res.writeHead(200, 'Ok', {
-    'content-type': 'text/html'
-  })
-  if (isServer) await serveStatic(req, res, 'public', 'server-index.html');
-  else await serveStatic(req, res, 'public', 'index.html')
-  res.end();
-})
-addRout('/send', async (req, res, isServer) => {
-  if (true) {
-    res.writeHead(200, 'Ok', {
-      'content-type': 'text/html'
-    })
-    await serveStatic(req, res, 'public', 'send.html');
-    res.end();
-  }
-  else handle404(req, res)
-
-})
-addRout('/server-receive', async (req, res, isServer) => {
-  if (isServer) {
-    res.writeHead(200, 'Ok', {
-      'content-type': 'text/html'
-    })
-    await serveStatic(req, res, 'public', 'server-receive.html');
-    res.end();
-  }
-  else handle404(req, res)
-
-} )
-addRout('/send-to-server', async (req, res, isServer) => {
-
-  await varifyDir('temp', 'to-receive');
-  let { filename, filesize, lastmodified, chunksize, index, islast } = req.headers;
-  filesize = Number(filesize); chunksize = Number(chunksize); index = Number(index);
-
-  const writePath = path.join('temp', 'to-receive', `${lastmodified}-${filesize}_${filename}`)
-  let status;
-  let stream;
-  if (index === 0) {
-    status = await chkStat(writePath);
-    if (status) {
-      let resumeIndex = Math.floor(status.size / chunksize);
-      if (resumeIndex != 0) {
-        res.writeHead(206, "ok", {
-          "index": resumeIndex
-        })
-        res.end("Resumed");
-        return;
-      } else stream = fs.createWriteStream(writePath);
-    } else {
-      stream = fs.createWriteStream(writePath)
-    }
-  } else {
-    stream = fs.createWriteStream(writePath, { flags: "r+", start: index * chunksize })
-  }
-  res.writeHead(206, "ok", {
-    "index": String(index + 1)
-  })
-  req.on('data', (chunk) => {
-    stream.write(chunk);
-  })
-  req.on('end', async () => {
-    if (islast === "true") {
-      res.end("Completed");
-      let movePath = ['data', 'received', `${filename}`]
-      let readstream = fs.createReadStream(writePath);
-      let moveWriteStream = fs.createWriteStream(path.join(...movePath));
-      readstream.pipe(moveWriteStream);
-      readstream.on('end', async () => {
-        await fs.promises.unlink(writePath);
-      })
-    } else
-      res.end(String(index + 1));
-  })
-})
-
-function handle404(req, res) {
-  res.writeHead(404, '404', {
-    'content-type': 'text/html'
-  });
-  res.end(`
-    <html lang="en" >
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Data Shifter 404</title>
-  </head>
-  <body>
-    <h1>404</h1>
-  </body>
-  </html>
-    `)
-}
-
-export function addRout(url, handler) {
-  Routs.push({ url, handler })
-}
-
-export async function serveStatic(req, res, ...filePath) {
-  const safePath = path.join(...filePath);
-  return new Promise((resolve, reject) => {
-    const stream = fs.createReadStream(safePath);
-    stream.pipe(res);
-    stream.on("end", () => {
-      resolve();
-    })
-    stream.on('error', () => {
-      reject()
-    })
-  })
-}
 
 server.listen(port);
 server.on('listening', () => {
@@ -152,5 +30,6 @@ process.on('uncaughtException', (err) => {
     Stack: ${err.stack}`)
 });
 process.on('unhandledRejection', (err) => {
-  console.error("Unhandeld rejection : " + err + err.stack)
+  console.error("Unhandeld rejection : " + err)
+  console.error("Stack: " + err.stack)
 })

@@ -5,7 +5,7 @@ file_input.onchange = show;
 function show() {
   let allSendFunctions = [];
   let allSendBtns = [];
-  Array.from(file_input.files).map((file, index) => {
+  Array.from(file_input.files).forEach((file, index) => {
    
     const file_transfer = new FileTransfer(file);
     file_transfer.renderUIinside(show_files)
@@ -196,7 +196,7 @@ FileTransfer.prototype.sendFile = async function (
     xhr.send(filePart);
   });
 };
-FileTransfer.prototype.onCancelBtn = async function (event,index, allSendBtns, allSendFunctions) {
+FileTransfer.prototype.onCancelBtn = async function (event) {
   event.stopPropagation();
   const state = this.state;
   const ui = this.ui;
