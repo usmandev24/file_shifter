@@ -1,4 +1,5 @@
 import path from 'node:path';
+import * as fs from "node:fs"
 import { chkStat, varifyDir } from '../model/file-stat.mjs';
 import { addRoute } from "./addRoute.mjs"
 import EventEmitter from "node:events";
@@ -14,23 +15,24 @@ addRoute("/send-to-server-status", async (req, res, isServer) => {
 
 addRoute("/send-to-server", async (req, res, isServer) => {
   await varifyDir("temp", "to-receive");
-  let { filename, filesize, lastmodified, chunksize, index, islast } =
+  let { filename, filesize, lastmodified, chunksize, index, islast, status } =
     req.headers;
   filesize = Number(filesize);
   chunksize = Number(chunksize);
   index = Number(index);
+  
   emitter.emit("req", filename, filesize, chunksize, index);
   const writePath = path.join(
     "temp",
     "to-receive",
     `${lastmodified}-${filesize}_${filename}`
   );
-  let status;
+  let localstatus;
   let stream;
   if (index === 0) {
-    status = await chkStat(writePath);
-    if (status) {
-      let resumeIndex = Math.floor(status.size / chunksize);
+    localstatus = await chkStat(writePath);
+    if (localstatus) {
+      let resumeIndex = Math.floor(localstatus.size / chunksize);
       if (resumeIndex != 0) {
         res.writeHead(206, "ok", {
           index: resumeIndex,
@@ -53,12 +55,16 @@ addRoute("/send-to-server", async (req, res, isServer) => {
   });
   let length = 0
   req.on("data", (chunk) => {
-    length =+ chunk.length
-    
+    length = chunk.length + length;
     stream.write(chunk);
   });
-  emitter.emit("saving", filename, filesize, 0, index); 
+  let emittingData  = setInterval(() => {
+   emitter.emit("saving", filename, filesize, length, index); 
+  }, 500)
+  let completed = false;
   req.on("end", async () => {
+    clearInterval(emittingData);
+    completed = true;
     if (islast === "true") {
       emitter.emit("done", filename, filesize);
       res.end("Completed");
@@ -71,9 +77,12 @@ addRoute("/send-to-server", async (req, res, isServer) => {
       });
     } else {
       res.end(String(index + 1));
-      clearInterval(saving);
     } ;
   });
+  req.on("close" , () => {
+    if (!completed) emitter.emit("stoped", filename, filesize, "stoped")
+    clearInterval(emittingData)
+  })
 });
 addEvents()
 function addEvents() {
@@ -92,12 +101,19 @@ function addEvents() {
     allFileStatus[filename + filesize] = fileStatus;
     
   });
+  emitter.on("stoped", (filename, filesize, status) => {
+    const key = filename + filesize;
+    let fileStatus = allFileStatus[key];
+    fileStatus.update(status, fileStatus.savedSize);
+    allFileStatus[key] = fileStatus;
+    emitter.emit("updated", key)
+  })
   emitter.on("resumed", (filename, filesize, resumeIndex) => {
     const key = filename + filesize;
     let fileStatus = allFileStatus[key];
     fileStatus.update("resumed", resumeIndex * fileStatus.chunksize);
     allFileStatus[key] = fileStatus;
-    
+    emitter.emit("updated", key)
   });
   emitter.on("saving", (filename, filesize, length, index) => {
     const key = filename + filesize;

@@ -2190,6 +2190,9 @@
   .pr-2 {
     padding-right: calc(var(--spacing) * 2);
   }
+  .text-center {
+    text-align: center;
+  }
   .align-middle {
     vertical-align: middle;
   }
@@ -2200,6 +2203,9 @@
   .text-xl {
     font-size: var(--text-xl);
     line-height: var(--tw-leading, var(--text-xl--line-height));
+  }
+  .text-\[0\.85rem\] {
+    font-size: 0.85rem;
   }
   .font-bold {
     --tw-font-weight: var(--font-weight-bold);
@@ -2501,6 +2507,11 @@
   .md\:p-12 {
     @media (width >= 48rem) {
       padding: calc(var(--spacing) * 12);
+    }
+  }
+  .md\:text-\[1rem\] {
+    @media (width >= 48rem) {
+      font-size: 1rem;
     }
   }
   .md\:btn-md {

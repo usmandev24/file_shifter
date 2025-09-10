@@ -3,7 +3,6 @@ import { checkDevice, getIpv4 } from './model/checkDevice.mjs';
 import { allRoutes } from './routes/index.mjs';
 import { handle404 } from './routes/mainRoutes.mjs';
 
-console.log(allRoutes)
 export const port = 4000
 export const server = http.createServer(async (req, res) => {
   const isServer = checkDevice(req.socket.address().address);

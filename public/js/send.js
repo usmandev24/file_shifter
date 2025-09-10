@@ -6,11 +6,11 @@ function show() {
   let allSendFunctions = [];
   let allSendBtns = [];
   Array.from(file_input.files).forEach((file, index) => {
-   
+
     const file_transfer = new FileTransfer(file);
     file_transfer.renderUIinside(show_files)
     file_transfer.attachEvents();
-    
+
     file_transfer.ui.cancelBtn.onclick = async (event) => {
       await file_transfer.onCancelBtn(event, index, allSendBtns, allSendFunctions)
     }
@@ -49,7 +49,7 @@ class FileTransfer {
     this.file = file
     this.state = {
       cancelBtnCliked: false,
-      info_Div_height : null,
+      info_Div_height: null,
       Paused: false,
       canceled: false,
       chunk: 20 * 1024 * 1024,
@@ -76,12 +76,14 @@ FileTransfer.prototype.replaceClassList = function (ele, from, to) {
   ele.classList.replace(from, to)
 }
 FileTransfer.prototype.setInfoDivHeight = function () {
+  if (this.state.info_Div_height === null ) {
   const info_Div = this.ui.info_Div;
   const state = this.state;
   info_Div.style.display = "flex";
   const height = info_Div.getBoundingClientRect().height + "px";
   info_Div.style.height = height
   this.state.info_Div_height = height;
+  }
 }
 FileTransfer.prototype.hideInfo_Div = function (delay) {
   const info_Div = this.ui.info_Div;
@@ -132,12 +134,12 @@ FileTransfer.prototype.OnSendBtn = async function (event) {
       );
       index = receivedIndex;
     }
-  }  else if (sendBtn.textContent === "Pause") {
+  } else if (sendBtn.textContent === "Pause") {
     state.Paused = true;
+    await cancelSending(xhr);
     sendBtn.textContent = "Resume";
     sendBtn.classList.replace("btn-dash", "btn-outline");
     ui.infoAlert.textContent = "▶ Sending Paused...";
-    await cancelSending(xhr);
   }
 }
 FileTransfer.prototype.sendFile = async function (
@@ -160,7 +162,7 @@ FileTransfer.prototype.sendFile = async function (
     xhr.setRequestHeader("index", index);
     xhr.setRequestHeader("chunksize", chunkSize);
     xhr.setRequestHeader("islast", isLastchunk);
-    
+    xhr.setRequestHeader("status", "sending")
     xhr.onloadstart = () => {
       this.showOnStart();
     };
@@ -182,6 +184,7 @@ FileTransfer.prototype.sendFile = async function (
     };
     xhr.onabort = () => {
       reslove(totalchunk);
+      console.log("canceled")
     };
 
     xhr.onload = () => {
@@ -200,34 +203,32 @@ FileTransfer.prototype.onCancelBtn = async function (event) {
   event.stopPropagation();
   const state = this.state;
   const ui = this.ui;
-  
-    ui.cancelBtn.disabled = true;
-    ui.cancelBtn.style.display = "none";
-    this.sendBtnText("Canceled")
-    this.replaceClassName(ui.sendBtn,
-      /text-primary|text-error|text-info/,
-      "text-warning"
-    );
-    this.infoAlertText("⚠️ Canceled By User.");
-    this.replaceClassName(ui.infoAlert,
-      /alert-info|alert-error/,
-      "alert-warning"
-    );
-    this.replaceClassName(ui.pBar,
-      /progress-primary|progress-error|progress-info/,
-      "progress-warning"
-    );
-    ui.sendBtn.disabled = true;
-    state.canceled = true;
-    this.hideInfo_Div(1000)
-    await cancelSending(state.xhr);
-    console.log("canceled");
-  
+  const file = this.file;
+  await cancelSending(state.xhr);
+  ui.cancelBtn.disabled = true;
+  ui.cancelBtn.style.display = "none";
+  this.sendBtnText("Canceled")
+  this.replaceClassName(ui.sendBtn,
+    /text-primary|text-error|text-info/,
+    "text-warning"
+  );
+  this.infoAlertText("⚠️ Canceled By User.");
+  this.replaceClassName(ui.infoAlert,
+    /alert-info|alert-error/,
+    "alert-warning"
+  );
+  this.replaceClassName(ui.pBar,
+    /progress-primary|progress-error|progress-info/,
+    "progress-warning"
+  );
+  ui.sendBtn.disabled = true;
+  state.canceled = true;
+  this.hideInfo_Div(1000)
 }
 FileTransfer.prototype.attachEvents = function () {
   const ui = this.ui;
   const state = this.state;
-  
+
   ui.sendBtn.onclick = (event) => {
     this.OnSendBtn(event)
   }
@@ -266,7 +267,7 @@ FileTransfer.prototype.showOnSuccess = function (responseText) {
   ui.cancelBtn.className = "hidden";
   ui.sendBtn.disabled = true;
 }
-FileTransfer.prototype.showOnError = function() {
+FileTransfer.prototype.showOnError = function () {
   const ui = this.ui
   this.sendBtnText("Retry");
   this.replaceClassName(ui.sendBtn,
@@ -281,7 +282,7 @@ FileTransfer.prototype.showOnError = function() {
   this.infoAlertText("🚫Error While Sending");
   this.replaceClassList(ui.infoAlert, "alert-info", "alert-error");
 }
-FileTransfer.prototype.showOnStart = function() {
+FileTransfer.prototype.showOnStart = function () {
   const ui = this.ui;
   this.sendBtnText("Pause");
   this.replaceClassName(ui.sendBtn,
@@ -309,9 +310,7 @@ async function cancelSending(xhr) {
       reject();
     }
     xhr.abort();
-    xhr.onabort = () => {
-      reslove();
-    }
+    reslove()
   });
 }
 function el(tag, props = {}, ...children) {
@@ -334,8 +333,10 @@ function createFileUi(file) {
     className: "flex justify-between  break-all items-center",
   });
   const nameText = document.createElement("h3");
+  nameText.className = "text-[0.85rem] font-bold md:text-[1rem]";
+
   const sendBtn = el("button", {
-    className: "btn btn-sm md:btn-md  btn-outline text-primary",
+    className: "btn btn-sm  btn-outline text-primary",
   }, "Send");
   const pRow = el("div", {
     className: "flex flex-row justify-center items-center",
@@ -343,21 +344,21 @@ function createFileUi(file) {
   const pBar = el("progress", {
     max: 100,
     value: 0,
-    className: " progress progress-info  h-3 md:h-4  mr-4",
+    className: " progress progress-info  h-2 md:h-3  mr-4",
   });
-  const percentEle = el("p", { className: "p-1 md:p-2", textContent: "0%" });
+  const percentEle = el("p", { className: "p-1", textContent: "0%" });
 
-  const speedEle = el("p", { className: "p-1 md:p-2", textContent: "0.00MB/s" });
+  const speedEle = el("p", { className: "p-1", textContent: "0.00MB/s" });
 
   const infoAlert = el("div", {
-    className: "alert alert-info alert-soft alert-horizontal",
+    className: "alert alert-info alert-soft alert-horizontal p-2 text-[0.85rem] md:text-[9rem]",
     textContent: "Uploading file to Server",
   });
 
   const cancelBtn = el(
     "button",
     {
-      className: "btn btn-dash btn-sm md:btn-md text-error",
+      className: "btn btn-dash btn-sm text-error",
     },
     "Cancle"
   );
@@ -399,4 +400,4 @@ function createFileUi(file) {
     pBar, percentEle, speedEle,
     infoAlert, cancelBtn, infoRow, info_Div
   }
-} 
+}
