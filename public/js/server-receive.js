@@ -9,6 +9,7 @@ class FileUi {
       info_Div_height :null
     }
     this.init()
+    this.update(this.file);
   }
   update(file) {
     this.file = file;
@@ -17,12 +18,12 @@ class FileUi {
     ui.pBar.value = percent.toFixed(0)
     ui.percentEle.textContent = percent.toFixed(1) + "%"
     ui.statusBtn.textContent = file.status;
-    if (percent === 100) {
+    if (file.status ==="completed") {
       this.showOnSuccess()
     } 
-    if (file.status === "canceled") this.showOnError();
-    if (file.status === 'stoped') this.onCancel();
-    if (file.status === "resumed" || file.status === "saving") this.showOnStart()
+    else if (file.status === "canceled") this.showOnError();
+    else if (file.status === 'stoped') this.onCancel();
+    else if (file.status === "resumed" || file.status === "saving") this.showOnStart()
   }
   init () {
     this.setInfoDivHeight();
@@ -46,20 +47,30 @@ function showUpdates() {
   })
 }
 function getStats() {
-    fetch('/send-to-server-status').then(async (res) => {
+    fetch('/send-to-server/status').then(async (res) => {
     const reader =  res.body.getReader();
     const decoder = new TextDecoder()
     while (true) {
       const {value, done} = await reader.read();
       if (done) break;
       const status = decoder.decode(value, {stream: true});
-      console.log(JSON.parse(status))
       emitter.dispatchEvent(new CustomEvent("new", {detail: JSON.parse(status)}))
     }
   })
   .catch(err => {
     emitter.dispatchEvent(new CustomEvent("error", {detail: err}))
   })
+}
+async function getCompleted() {
+  const completed =await fetch('/send-to-server/completed')
+  const list = await completed.text();
+  return JSON.parse(list)
+}
+function renderCompleted(list) {
+  if (Object.values(list).length > 0) waiting.style.display = "none";
+  for(let file of Object.values(list)) {
+    renderUI = new FileUi(file)
+  }
 }
 FileUi.prototype.statusBtnText = function (text) {
   this.ui.statusBtn.textContent = text
@@ -107,6 +118,10 @@ FileUi.prototype.showOnStart = function () {
     /text-primary|text-secondary|text-error|text-warning/,
     "text-info"
   );
+  this.replaceClassName(ui.nameText, 
+    /text-warning/, "text-info"
+  )
+  
   this.replaceClassName(ui.statusBtn, /btn-outline/, "btn-dash");
   this.replaceClassName(ui.pBar,
     /progress-primary|progress-error|progress-warning/,
@@ -125,6 +140,9 @@ FileUi.prototype.onCancel = function () {
     "text-warning"
   );
   this.infoAlertText("⚠️ Stoped by Sender.");
+  this.replaceClassName(ui.nameText, 
+    /text-info/, "text-warning"
+  )
   this.replaceClassName(ui.infoAlert,
     /alert-info|alert-error/,
     "alert-warning"
@@ -133,7 +151,6 @@ FileUi.prototype.onCancel = function () {
     /progress-primary|progress-error|progress-info/,
     "progress-warning"
   );
-  this.hideInfo_Div(1000)
 }
 FileUi.prototype.showOnSuccess = function (responseText) {
   const ui = this.ui
@@ -141,6 +158,9 @@ FileUi.prototype.showOnSuccess = function (responseText) {
     /text-primary|text-secondary|text-info/,
     "text-success"
   );
+  this.replaceClassName(ui.nameText, 
+    /text-info|text-warning/, "text-success"
+  )
   this.replaceClassName(ui.pBar,
     /progress-primary|progress-secondary|progress-info/,
     "progress-success"
@@ -178,13 +198,13 @@ function createFileUi(file) {
   //Dom Elements ;
   const oneFileSet = el("div", {
     className:
-      "flex flex-col gap-1  w-full p-2 mt-3 border border-base-200 rounded-lg bg-base-100",
+      "flex flex-col gap-1  w-full p-2 mt-3 border border-base-200 bg-base-100 rounded-lg ",
   });
   const nameRow = el("div", {
     className: "flex justify-between  break-all items-center",
   });
   const nameText = document.createElement("h3");
-  nameText.className = "text-[0.85rem] font-bold md:text-[1rem]";
+  nameText.className = "text-[0.85rem] text-info font-bold md:text-[1rem]";
   const statusBtn = el("button", {
     className: "btn btn-sm md:btn-md  btn-outline text-primary",
     disabled: true,
@@ -253,7 +273,9 @@ function el(tag, props = {}, ...children) {
   return e;
 
 }
-window.addEventListener("load" , () => {
+window.addEventListener("load" , async () => {
+  const list = await getCompleted()
+  renderCompleted(list)
   getStats();
   showUpdates()
 })

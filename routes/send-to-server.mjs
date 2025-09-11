@@ -6,7 +6,13 @@ import EventEmitter from "node:events";
 
 const emitter = new EventEmitter();
 let allFileStatus = {};
-addRoute("/send-to-server-status", async (req, res, isServer) => {
+let completedFiles = {};
+addRoute("/send-to-server/completed", async (req, res , isServer) => {
+  res.writeHead(200, "ok", {"content-type": "application/json"});
+  res.write(JSON.stringify(completedFiles))
+  res.end();
+})
+addRoute("/send-to-server/status", async (req, res, isServer) => {
     emitter.on("updated", (key) => {
       let status = allFileStatus[key];
       res.write(JSON.stringify(status.toJson()));
@@ -60,7 +66,7 @@ addRoute("/send-to-server", async (req, res, isServer) => {
   });
   let emittingData  = setInterval(() => {
    emitter.emit("saving", filename, filesize, length, index); 
-  }, 500)
+  }, 300)
   let completed = false;
   req.on("end", async () => {
     clearInterval(emittingData);
@@ -129,6 +135,7 @@ function addEvents() {
     let fileStatus = allFileStatus[key];
     fileStatus.update("completed", filesize);
     allFileStatus[key] = fileStatus;
+    completedFiles[key] = fileStatus.toJson();
     emitter.emit('updated', key)
   })
 }
