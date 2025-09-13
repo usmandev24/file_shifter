@@ -1,177 +1,69 @@
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/public/styles/main_styles.css" />
+    <title>Server Send</title>
+  </head>
+  <body>
+    <div
+      class="flex flex-1 justify-between items-center border-b border-base-300 m-auto"
+    >
+      <div class="w-[2rem]"></div>
+      <h1 class="text-xl lg:text-2xl p-2 ml-2 font-bold">
+        <a href="/">File Shifter</a>
+      </h1>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="/public/styles/main_styles.css" />
-  <title>Send To Device</title>
-</head>
-
-<body>
-  <div class="flex flex-1 justify-between items-center border-b border-base-300 m-auto">
-    <div class="w-[2rem]"></div>
-    <h1 class="text-xl lg:text-2xl p-2 ml-2 font-bold">
-      <a href="/">Data Shifter</a>
-    </h1>
-
-    <div class="dropdown dropdown-end dropdown-bottom">
-      <div role="button" tabindex="0" class="btn text-xl w-8 h-12 mr-4 rotate-90">
-        |||
-      </div>
-      <ul class="dropdown-content bg-base-100 border border-gray-500 rounded-lg menu menu-vertical w-32 z-10 p-2">
-        <li class=""><a class="btn mb-1" href="/server-send">Send</a></li>
-        <li class=""><a class="btn mb-1" href="/server-receive">Recieve</a></li>
-        <li class=""><a class="btn-link m-1" href="">Help</a></li>
-        <li class=""><a class="btn-link m-1" href="">About</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="flex flex-1 flex-col h-100 m-2 md:m-12 lg:m-16 items-center justify-center-safe">
-    <div class="card card-md md:card:md lg:card-lg xl:card-xl bg-base-300">
-      <div class="card-body items-center p-4 md:p-8">
-        <h2 class="card-title text-xl mt-2">
-          Send To Other Device (PC/Mobile)
-        </h2>
-        <p class="mt-2">
-          Make sure your both devices conected to same WIFI network or One
-          device connected with hotspot of other device. Like your PC
-          connected with your Mobile Hotspot .
-        </p>
-        <div class="card-actions mt-2">
-          <input type="file" multiple id="file-input"
-            class="input file-input file-input-primary active:file-input-success" />
+      <div class="dropdown dropdown-end dropdown-bottom">
+        <div
+          role="button"
+          tabindex="0"
+          class="btn text-xl w-8 h-12 mr-4 rotate-90"
+        >
+          |||
         </div>
-        <div class="w-full" id="show-files"></div>
-        <div style=" display:  none;" class=" btn-primary m-auto "></div>
+        <ul
+          class="dropdown-content bg-base-100 border border-gray-500 rounded-lg menu menu-vertical w-32 z-10 p-2 m-2 mr-3"
+        >
+          <li class=""><a class="btn mb-1" href="/server-send">Send</a></li>
+          <li class="">
+            <a class="btn mb-1" href="/server-receive">Receive</a>
+          </li>
+          <li class="">
+            <a class="link link-info m-auto mt-1" href="">About</a>
+          </li>
+        </ul>
       </div>
     </div>
-  </div>
-  <script>
-    const file_input = document.getElementById("file-input");
-    const show_files = document.getElementById("show-files");
-    file_input.onchange = show;
+    <div
+      class="flex h-[calc(100vh-4rem)] flex-col p-2 md:p-12 lg:p-16 items-center justify-center"
+    >
+      <div class="card card-md md:card:md lg:card-lg xl:card:xl bg-base-300">
+        <div class="card-body items-center p-4 md:p-8">
+          <h2 class="card-title text-xl mt-2">🔗 Send Files To Any device PC/Mobile</h2>
+          <p class="mt-2 text-lg text-[1rem] text-center alert alert-info alert-soft">
+            Make sure both devices connected to same 🌐WIFI or this PC is
+            connected with the hostspot of other Mobile/PC.   
+          </p>
 
-    function show() {
-      Array.from(file_input.files).map((file, index) => {
-        console.log(file);
-        const oneFileSet = document.createElement("div");
-        oneFileSet.className =
-          "flex flex-col  w-full p-2 mt-3 border border-base-100 rounded-lg bg-base-200";
-        const nameRow = document.createElement("div");
-        nameRow.className =
-          "flex justify-between items-center rounded-lg p-1 pr-2";
-
-        const name = document.createElement("h3");
-        let fileSize = (file.size / (1024 * 1024)).toFixed(2) + "MB";
-        if (file.size / (1024 * 1024) < 1)
-          fileSize = (file.size / 1024).toFixed(2) + "KB";
-        name.textContent = `${file.name} (${fileSize})`;
-
-        const sdBtn = document.createElement("button");
-        sdBtn.className = "btn btn-sm md:btn-md lg:btn-lg btn-secondary";
-        sdBtn.textContent = "Send";
-        const pRow = document.createElement("div");
-        pRow.className = " flex-row flex-1 justify-items-center items-center";
-        pRow.style.display = "none";
-        const pbar = document.createElement("progress");
-        pbar.max = 100;
-        pbar.value = 30;
-        pbar.className = " progress progress-info  h-3 md:h-4  mr-4";
-        const percent = document.createElement("p");
-        percent.className = " p-2 ";
-        percent.textContent = "50%";
-        const speed = document.createElement("p");
-        speed.className = "p-2";
-        speed.textContent = "10.00MB/s";
-
-        pRow.appendChild(pbar);
-        pRow.appendChild(percent);
-        pRow.appendChild(speed);
-
-        nameRow.appendChild(name);
-        nameRow.appendChild(sdBtn);
-        oneFileSet.appendChild(nameRow);
-        oneFileSet.appendChild(pRow);
-        show_files.appendChild(oneFileSet);
-
-        sdBtn.onclick = async () => {
-          const xhr = new XMLHttpRequest();
-          if (sdBtn.textContent === 'Send') {
-            await sendFile(file, xhr, oneFileSet, sdBtn, pRow, pbar, percent, speed)
-          } else if (sdBtn.textContent === 'Cancel') {
-            xhr.abort();
-          }
-        }
-        const totalFiles = Array.from(file_input.files)
-        if (index + 1 === totalFiles.length) {
-          const sendAllBtnDIV = document.createElement('div');
-          sendAllBtnDIV.className = "flex flex-row justify-center mt-4";
-          const sendAllbtn = document.createElement('button');
-          sendAllbtn.textContent = 'Send All Files';
-          sendAllbtn.className = 'btn btn-primary w-[40vw] m-auto  ';
-          sendAllBtnDIV.appendChild(sendAllbtn);
-          show_files.appendChild(sendAllBtnDIV);
-
-          sendAllbtn.onclick = async () => {
-            for (let toSend of totalFiles) {
-              console.log(totalFiles)
-              sendAllbtn.textContent = "Cancle All";
-              const xhr = new XMLHttpRequest();
-              await sendFile(toSend, xhr, oneFileSet, sdBtn, pRow, pbar, percent, speed)
-            }
-          }
-        }
-      });
-    }
-
-    //xhr = xmlHttpReq, pbarEle = progress bar Element, percentEle = percent Elemet
-
-    async function sendFile(file, xhr, fileDiv, sendBtn, pRowDiv, pbarEle, percentEle, speedEle) {
-      return new Promise((reslove, reject) => {
-        xhr.open('POST', '/send-to-server');
-
-        xhr.setRequestHeader('file-name', file.name);
-        xhr.setRequestHeader('file-size', file.size);
-
-        pRowDiv.style.display = 'flex';
-        xhr.onloadstart = () => {
-          sendBtn.textContent = 'Cancel';
-          sendBtn.classList.replace('btn-secondary', 'btn-warning');
-        }
-
-        const startTime = Date.now()
-        xhr.upload.onprogress = (event) => {
-          if (event.lengthComputable) {
-            let percent = (event.loaded / event.total) * 100;
-            pbarEle.value = percent;
-            percentEle.textContent = percent.toFixed(1) + "%";
-            let speed = (event.loaded / (1024 * 1024)) / ((Date.now() - startTime) / 1000);
-            speedEle.textContent = speed.toFixed(2) + "MB/s"
-          }
-        }
-        xhr.onerror = () => {
-          pbarEle.classList.replace('progress-info', 'progress-error');
-          sendBtn.textContent = 'Error'; sendBtn.disabled;
-          sendBtn.className.replace(/btn-warning|btn-secondary/, 'btn-error');
-          reject()
-        }
-        xhr.onabort = () => {
-          pbarEle.classList.replace('progress-info', 'progress-warning');
-          sendBtn.textContent = 'canceled'; sendBtn.disabled;
-          sendBtn.classList.replace('btn-warning', 'btn-error');
-          reslove()
-        }
-
-        xhr.onload = () => {
-          pbarEle.classList.replace('progress-info', 'progress-success');
-          sendBtn.textContent = xhr.responseText; sendBtn.disabled;
-          sendBtn.classList.replace('btn-warning', 'btn-success');
-          reslove()
-        }
-        xhr.send(file);
-      })
-    }
-  </script>
-</body>
-
+          <input
+            type="file"
+            multiple
+            id="file-input"
+            class="input mt-4 file-input file-input-primary active:file-input-success"
+          />
+          <p class="text-center mt-2">OR Enter Directroy Path</p>
+          <div class="join join-horizontal mt-2">
+            <label class="input input-primary w-[70vw] md:w-[50vw]">
+              Enter Path:
+              <input type="text" id="dir-path" />
+            </label>
+            <div id="ok-btn" class="btn btn-outline border-primary">OK</div>
+          </div>
+          <div class="w-full" id="show-files"></div>
+        </div>
+      </div>
+    </div>
+    <script src="/public/js/server-send.js"></script>
+  </body>
 </html>

@@ -10,6 +10,18 @@ addRoute('/', async (req, res, isServer) => {
   else await serverFile(req, res, 'public', 'index.html')
   res.end();
 })
+addRoute('/send-to-Main-PC', async (req, res, isServer) => {
+  if (true) {
+    res.writeHead(200, 'Ok', {
+      'content-type': 'text/html',
+      'cache-control': 'no-cache'
+    })
+    await serverFile(req, res, 'public', 'send-to-server.html');
+    res.end();
+  }
+  else handle404(req, res)
+
+})
 addRoute('/send', async (req, res, isServer) => {
   if (true) {
     res.writeHead(200, 'Ok', {
@@ -34,7 +46,34 @@ addRoute('/server-receive', async (req, res, isServer) => {
   else handle404(req, res)
 
 })
+addRoute('/server-send', async (req, res, isServer) => {
+  if (isServer) {
+    res.writeHead(200, 'Ok', {
+      'content-type': 'text/html',
+      'cache-control': 'no-cache'
+    })
+    await serverFile(req, res, 'public', 'server-send.html');
+    res.end();
+  }
+  else handle404(req, res)
+
+})
+addRoute('/receive', async (req, res, isServer) => {
+  if (true) {
+    res.writeHead(200, 'Ok', {
+      'content-type': 'text/html',
+      'cache-control': 'no-cache'
+    })
+    await serverFile(req, res, 'public', 'receive.html');
+    res.end();
+  }
+  else handle404(req, res)
+
+})
 addRoute('/public/styles/main_styles.css', async (req, res) => {
+  res.writeHead(200, 'Ok', {
+      'cache-control': 'no-cache'
+    })
   await serverFile(req, res, 'public', 'styles', 'main_styles.css');
 })
 

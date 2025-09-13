@@ -32,19 +32,28 @@
       </div>
     </div>
     <div
-      class="flex h-100 flex-col p-2 md:p-12 lg:p-16 items-center justify-center-safe"
+      class="flex h-[calc(100vh-4rem)] flex-col p-2 md:p-12 lg:p-16  items-center justify-center-safe"
     >
-      <div class="card  card-md md:card:md lg:card-lg xl:card:xl bg-base-300">
+      <div class="card card-md md:card:md lg:card-lg xl:card:xl bg-base-300">
         <div class="card-body items-center p-4 md:p-8">
-          <h2 class="card-title text-xl mt-3 ">Send and Recieve Data</h2>
-          <p class="mt-3">
-            Share your files with your devices conected to same WIFI network or
-            One device connected with hotspot of other device. Like your PC
-            connected with your Mobile Hotspot .
+          <h2 class="card-title text-xl mt-3">Send and Recieve Files</h2>
+          <p class="mt-3 text-lg text-[1rem] text-center alert alert-info alert-soft">
+            Transfer files seamlessly between your devices over the same 🌐 Wi-Fi
+            network, or through a mobile hotspot connection (e.g.,💻PC connected
+            to your 📱phone’s hotspot).
           </p>
-          <div class="card-actions mt-2">
-            <a class="btn btn-primary w-24" href="/send">Send</a>
-            <a class="btn btn-primary w-24" href="/receive">Receive</a>
+          <div
+            class="flex flex-col justify-center-safe items-center-safe gap-3 mt-4"
+          >
+            <a class="btn btn-primary  w-max" href="/send-to-server"
+              >📤 Upload To Main PC</a
+            >
+            <a class="btn btn-primary  w-max" href="/send"
+              >🔗 Send To Any Device (💻PC/📱Mobile)</a
+            >
+            <a class="btn btn-primary  w-max" href="/receive"
+              >📥 Receive</a
+            >
           </div>
         </div>
       </div>
