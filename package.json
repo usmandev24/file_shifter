@@ -1,12 +1,12 @@
 {
   "name": "file_shifter",
-  "version": "0.0.1",
+  "version": "0.1.17",
   "description": "Share files semlessly between devices connected with same local network",
   "main": "server.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "npx @tailwindcss/cli -i ./public/styles/input.css -o ./public/styles/main_styles.css --watch",
-    "start": "nodemon --ext html,js,mjs,json  ./server.mjs"
+    "start": "node ./server.mjs"
   },
   "keywords": [
     "file-share",
