@@ -4,6 +4,7 @@ import { routes } from "./addRoute.mjs";
 await serveFolder('public', "js");
 await import("./send-to-server.mjs")
 await import('./mainRoutes.mjs')
-export let allRoutes = routes;
+await import('./receive-from-server.mjs')
+
 
 
