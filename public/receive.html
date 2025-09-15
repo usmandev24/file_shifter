@@ -1,107 +1,58 @@
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/public/styles/main_styles.css" />
+    <title>Send To PC</title>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="styles/main_styles.css" />
-  <title>Receive From Device</title>
-</head>
+  <body>
+    <div
+      class="flex flex-1 justify-between items-center border-b border-base-300 m-auto"
+    >
+      <div class="w-[2rem]"></div>
+      <h1 class="text-xl lg:text-2xl p-2 ml-2 font-bold">
+        <a href="/">File Shifter</a>
+      </h1>
 
-<body>
-  <div class="flex flex-1 justify-between items-center border-b border-base-300 m-auto">
-    <h1 class=" text-xl p-2  font-bold"><a href="./index.html">File Shifter</a></h1>
-
-    <div class=" dropdown dropdown-bottom dropdown-end ">
-      <div role="button" tabindex="0" class=" btn text-xl w-8 h-12 mr-4 rotate-90">
-        |||
-      </div>
-      <ul class="dropdown-content bg-base-100 border border-gray-500 rounded-lg menu menu-vertical w-32 p-2 m-2">
-        <li class=""><a class="btn mb-1" href="send.html">Send</a></li>
-        <li class=""><a class="btn mb-1 " href="send.html">Recieve</a></li>
-        <li class=""><a class="btn-link m-1 " href="send.html">About</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="flex flex-1 flex-col h-[calc(100vh-4rem)] m-4 md:m-8 lg:m-12 items-center justify-center-safe">
-    <div class="card card-md  md:card:md lg:card-lg xl:card-xl bg-base-300">
-      <div class="card-body items-center">
-        <h2 class="card-title text-xl mt-2">📥 Receive Files Form Any Device</h2>
-        <p class="mt-2 text-lg text-[1rem] text-center alert alert-info alert-soft">
-          Open this page on the device where you want to receive files. Make sure both devices are connected to the same
-          🌐 Wi-Fi or hotspot. When the sender selects files, they will appear here for you to download.
-        </p>
-        <h3 class="card-title text-lg mt-2">
-          Waiting For Other devices to send Files....
-        </h3>
-        <div class="card-actions mt-2">
-
+      <div class="dropdown dropdown-end dropdown-bottom">
+        <div
+          role="button"
+          tabindex="0"
+          class="btn text-xl w-8 h-12 mr-4 rotate-90"
+        >
+          |||
         </div>
-        <div class="w-full " id="show-files">
-
-        </div>
+        <ul
+          class="dropdown-content bg-base-100 border border-gray-500 rounded-lg menu menu-vertical w-32 z-10 p-2 m-2 mr-3"
+        >
+          <li class=""><a class="btn mb-1" href="/send">Send</a></li>
+          <li class=""><a class="btn mb-1" href="/receive">Recieve</a></li>
+          <li class=""><a class="link link-info m-auto" href="">About</a></li>
+        </ul>
       </div>
     </div>
-  </div>
-  <script>
-    const file_input = document.getElementById('file-input');
-    const show_files = document.getElementById('show-files');
-    file_input.onchange = show;
+    <div
+      class="flex flex-1 flex-col h-[calc(100vh-4rem)] m-4 md:m-8 lg:m-12 items-center justify-center-safe"
+    >
+      <div class="card card-md md:card:md lg:card-lg xl:card-xl bg-base-300">
+        <div class="card-body items-center">
+          <h2 class="card-title text-xl mt-2">
+            📥 Receive Files Form Any Device
+          </h2>
+          <p
+            class="mt-2 text-lg text-[1rem] text-center alert alert-info alert-soft"
+          >
+            Open this page on the device where you want to receive files. Make
+            sure both devices are connected to the same 🌐 Wi-Fi or hotspot.
+            When the sender selects files, they will appear here for you to
+            download.
+          </p>
 
-    function show() {
-      Array.from(file_input.files).map((file, index) => {
-        console.log(file)
-        const oneFileSet = document.createElement('div');
-        oneFileSet.className = "flex flex-col  w-full p-2 mt-3 border border-base-100 rounded-lg bg-base-200";
-        const nameRow = document.createElement('div')
-        nameRow.className = "flex justify-between items-center rounded-lg p-1 pr-2";
-
-        const name = document.createElement('h3');
-        let fileSize = (file.size / (1024 * 1024)).toFixed(2) + "MB";
-        if (file.size / (1024 * 1024) < 1) fileSize = (file.size / 1024).toFixed(2) + "KB"
-        name.textContent = `${file.name} (${fileSize})`;
-
-        const sdBtn = document.createElement('button');
-        sdBtn.className = "btn btn-sm md:btn-md lg:btn-lg btn-secondary"
-        sdBtn.textContent = 'Send';
-
-
-
-        const pRow = document.createElement('div');
-        pRow.className = " flex-row flex-1 justify-items-center items-center";
-        pRow.style.display = "none"
-        const pbar = document.createElement('progress');
-        pbar.max = 100;
-        pbar.value = 30;
-        pbar.className = " progress progress-primary  h-4  mr-4";
-        const percent = document.createElement("p");
-        percent.className = " p-2 "; percent.textContent = '50%';
-        const speed = document.createElement("p");
-        speed.className = "p-2"; speed.textContent = "10.00MB/s"
-
-        pRow.appendChild(pbar); pRow.appendChild(percent); pRow.appendChild(speed)
-
-        nameRow.appendChild(name);
-        nameRow.appendChild(sdBtn);
-        oneFileSet.appendChild(nameRow);
-        oneFileSet.appendChild(pRow);
-        show_files.appendChild(oneFileSet);
-
-        sdBtn.onclick = () => {
-          if (pRow.style.display === 'none') {
-            pRow.style.display = "flex";
-
-          } else {
-            pRow.style.display = "none";
-            oneFileSet.classList.replace("bg-base-200")
-
-          }
-
-        }
-      })
-
-    }
-
-  </script>
-</body>
-
+          <div class="w-full" id="show-files"></div>
+        </div>
+      </div>
+    </div>
+    <script src="/public/js/receive.js"></script>
+  </body>
 </html>
