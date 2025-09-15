@@ -6,4 +6,4 @@ export function addRoute(url, handler) {
 serveFolder('public', "js");
 import("./send-to-server.mjs")
 import('./mainRoutes.mjs')
-import('./receive-from-server.mjs')
+import('./relay-from-server.mjs')
