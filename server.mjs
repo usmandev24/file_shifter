@@ -1,45 +1,47 @@
-import * as http from 'node:http';
-import { checkDevice, getIpv4 } from './model/checkDevice.mjs';
-import { allRoutes } from './routes/index.mjs';
-import { handle404 } from './routes/mainRoutes.mjs';
-import  qrcode  from "qrcode-terminal";
-export const port = 4000
+import * as http from "node:http";
+import { checkDevice, getIpv4 } from "./model/checkDevice.mjs";
+import { routes } from "./routes/addRoute.mjs";
+import { handle404 } from "./routes/mainRoutes.mjs";
+import qrcode from "qrcode-terminal";
+export const port = 4000;
 export const server = http.createServer(async (req, res) => {
   const isServer = checkDevice(req.socket.address().address);
-
-  for (let route of allRoutes) {
+  
+  for (let route of routes) {
     if (req.url === route.url) {
       await route.handler(req, res, isServer);
       return;
     }
   }
   handle404(req, res);
-})
+});
 
 server.listen(port);
-server.on('listening', () => {
+server.on("error", (err) => {
+  console.log(err)
+})
+server.on("listening", () => {
   console.log(`
 
 ------>   On this PC enter http://localhost:${port} in browser
 
------->   On Other device Mobile/PC go to http://${getIpv4()}:${port}`)
+------>   On Other device Mobile/PC go to http://${getIpv4()}:${port}`);
 });
+
 try {
-
-
-  qrcode.generate(`http://${getIpv4()}:${port}`, {small: true}, qcode => {
+  qrcode.generate(`http://${getIpv4()}:${port}`, { small: true }, (qcode) => {
     console.log(`
 OR Scan:
-${qcode}`)
-  })
+${qcode}`);
+  });
 } catch (error) {
-  console.error(error)
+  console.error(error);
 }
-process.on('uncaughtException', (err) => {
+process.on("uncaughtException", (err) => {
   console.error(`Error : ${err}
-    Stack: ${err.stack}`)
+    Stack: ${err.stack}`);
 });
-process.on('unhandledRejection', (err) => {
-  console.error("Unhandeld rejection : " + err)
-  console.error("Stack: " + err.stack)
-})
+process.on("unhandledRejection", (err) => {
+  console.error("Unhandeld rejection : " + err);
+  console.error("Stack: " + err.stack);
+});
