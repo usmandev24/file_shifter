@@ -1,10 +1,11 @@
-import { addRoute } from "./addRoute.mjs";
+import { addRoute, removeRouts } from "./addRoute.mjs";
 import EventEmitter from "node:events";
 import { PassThrough } from "node:stream";
 import { serverFile } from "../model/serveStatic.mjs";
 import { createServer } from "node:http";
 import parseURLquery from "../model/queryparser.mjs";
 import { memtype } from "../model/memtype.mjs";
+import { stat } from "node:fs";
 const emitter = new EventEmitter();
 
 let State = {}
@@ -18,6 +19,7 @@ let server = createServer(async (req, res) => {
 addRoute("/relay-from-server/file-meta-data", async (req, res) => {
   req.setEncoding("utf-8");
   const deviceID = req.headers.cookie;
+  State[deviceID] = { "name": req.headers.devicename };
   let metaData = "";
   req.on("data", (data) => {
     metaData += data;
@@ -33,11 +35,11 @@ addRoute("/relay-from-server/file-meta-data", async (req, res) => {
 function addLinksRouts(deviceID, metaData) {
   let allFilesInfo = {};
   for (let file of metaData) {
-    const url = `/relay-from-server/file?file-name=${encodeURIComponent(file.name)}$device-id=${encodeURIComponent(deviceID)}`;
-    console.log("http://localhost:4000"+url)
+    const url = `/relay-from-server/file?name=${encodeURIComponent(file.name)}$device-id=${encodeURIComponent(deviceID)}`;
+
     const fileKey = file.size + file.name;
     allFilesInfo[fileKey] = {
-      key : fileKey,
+      key: fileKey,
       name: file.name,
       size: file.size,
       status: "pending",
@@ -49,11 +51,16 @@ function addLinksRouts(deviceID, metaData) {
       const file = allFilesInfo[fileKey]
       let stream = file.relayStream;
 
-      if (!stream) {
+      if (!file.relayStream) {
         stream = await makeDownloadAble(deviceID, fileKey);
+        if (stream === "busy") {
+          res.end("busy")
+          return;
+        }
+        if (!file.relayStream) await makeDownloadAble(deviceID, fileKey)
         stream = file.relayStream
-      } 
-      const type = memtype(file.name) ;console.log(type)
+      }
+      const type = memtype(file.name); console.log(type)
       res.writeHead(200, "OK", {
         "content-disposition": `attachment; filename=${file.name}`,
         "content-type": type,
@@ -61,41 +68,46 @@ function addLinksRouts(deviceID, metaData) {
       });
       stream.pipe(res);
       file.status = "sending";
-      file.downloading +=1;
+      file.downloading += 1;
       const receiveID = req.headers.cookie;
-      emitUpdate("update", deviceID, receiveID,  file.key, file.status);
-      
+      emitUpdate("update", deviceID, receiveID, file.key, file.status);
+
       res.on("finish", () => {
         file.status = "completed";
-        emitUpdate("update", deviceID, receiveID,  file.key, file.status);
-        file.downloading -= 1;
+        emitUpdate("update", deviceID, receiveID, file.key, file.status);
+        if (file.downloading > 0) file.downloading -= 1;
         if (file.downloading === 0)
-        emitter.emit("downloaded", deviceID, file.key);
+          emitter.emit("downloaded", deviceID, file.key);
       });
       res.on("close", () => {
-        if (file.status !="completed") {
-          file.downloading -= 1
+        if (file.status != "completed") {
           file.status = "Canceled";
+          if (file.downloading > 0) file.downloading -= 1
           if (file.downloading === 0)
-          emitter.emit("downloaded", deviceID, file.key);
-          emitUpdate("update", deviceID, receiveID,  file.key, file.status);
+            emitter.emit("downloaded", deviceID, file.key);
+          emitUpdate("update", deviceID, receiveID, file.key, file.status);
+          console.log(file.downloading)
         }
       })
     })
   }
-  State[deviceID] = allFilesInfo;
+  State[deviceID]["fileObj"] = allFilesInfo;
   emitter.emit("newFiles", deviceID);
 }
 
 async function makeDownloadAble(deviceID, file) {
   return new Promise((resolve, reject) => {
-    emitter.emit("makeDownloadAble", deviceID,  file);
+    emitter.emit("makeDownloadAble", deviceID, file);
     function listner(id, filekey) {
       if (id === deviceID && filekey === file) {
         resolve();
         emitter.removeListener("maded", listner)
       }
     }
+    setTimeout(() => {
+      resolve("busy");
+      emitter.removeListener("maded", listner)
+    }, 3000);
     emitter.on("maded", listner)
   })
 }
@@ -114,26 +126,37 @@ addRoute("/relay-from-server/to-send", async (req, res) => {
   }
   emitter.on("makeDownloadAble", listner);
   req.on("close", () => {
-    emitter.removeListener("makeDownloadAble", listner)
-    State[deviceID] = []
+    emitter.removeListener("makeDownloadAble", listner);
+    cleanupRouts(deviceID);
+    State[deviceID] = null
   })
-})
-
+});
+function cleanupRouts(deviceID) {
+  const fileObj = State[deviceID]["fileObj"];
+  if (!fileObj) return;
+  for (let file of Object.values(fileObj)) {
+    removeRouts(file.link);
+  }
+}
 addRoute("/relay-from-server/make", async (req, res) => {
-  const { filename, filesize } = req.headers;
+  const { filename, filesize, devicename } = req.headers;
   const deviceID = req.headers.cookie;
   const fileKey = filesize + filename
-  const filesInfo = State[deviceID];
-  const file = filesInfo[fileKey]; console.log(file)
-  file.relayStream = new PassThrough();
+  const filesInfo = State[deviceID].fileObj;
+  const file = filesInfo[fileKey];
+  const stream = new PassThrough()
   res.writeHead(206, "OK", {
     connection: "keep-alive",
   });
-  req.pipe(file.relayStream);
+  req.pipe(stream);
+
+  file.relayStream = stream;
   emitter.emit("maded", deviceID, fileKey)
-  function listner(id , key) {
+  async function listner(id, key) {
     if (id === deviceID && key === fileKey) {
-      res.end("ok")
+      req.unpipe(stream);
+      res.end("ok");
+      console.log("Make End")
       file.relayStream = null;
     }
   }
@@ -155,7 +178,7 @@ addRoute("/relay-from-server/live-receive", (req, res) => {
     "connection": "keep-alive"
   })
   function listner(id) {
-    res.write(`event: newFiles\ndata: ${JSON.stringify({id: State[id]})}`)
+    res.write(`event: newFiles\ndata: ${JSON.stringify({ id: State[id] })}`)
   }
   emitter.on("newFiles", listner);
   req.on("close", () => {
@@ -175,7 +198,7 @@ addRoute("/relay-from-server/status", (req, res) => {
     "Cache-Control": "no-cache",
     Connection: "keep-alive",
   });
-  function listner(id , key, status) {
+  function listner(id, key, status) {
     if (id === deviceID) {
       res.write(`event: update\ndata: ${JSON.stringify({ [key]: status })}\n\n`);
     }

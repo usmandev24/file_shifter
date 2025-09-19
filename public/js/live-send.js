@@ -31,15 +31,17 @@ async function liveShare() {
   if (!localStorage.getItem("device-name")) {
     localStorage.setItem("device-name", device_name_input.value)
   }
-  const app = new Share(file_input);
+  const deviceName = localStorage.getItem("device-name").replaceAll("-", "_")
+  const app = new Share(file_input, deviceName);
   await app.init()
 
   window.onbeforeunload = app.close.bind(app)
 }
 
 class Share {
-  constructor(fileInput) {
+  constructor(fileInput, deviceName) {
     this.fileInput = fileInput;
+    this.deviceName = deviceName;
     this.statusSource = new EventSource("/relay-from-server/status");
     this.toSendSource = new EventSource("/relay-from-server/to-send");
     this.allFileObjs = {};
@@ -63,23 +65,31 @@ class Share {
 
   async sendMetaData() {
     console.log(JSON.stringify(this.matadata))
-    let res = await fetch("/relay-from-server/file-meta-data", {
-      method: "POST",
-      body: JSON.stringify(this.matadata),
-    })
-    return await res.text()
+    try {
+      let res = await fetch("/relay-from-server/file-meta-data", {
+        method: "POST",
+        body: JSON.stringify(this.matadata),
+        headers: {
+          "devicename": this.deviceName
+        }
+      })
+      return await res.text()
+    } catch (error) {
+      return "Error"
+    }
   }
 
   addListeners() {
     this.toSendSource.addEventListener("tosend", async event => {
-      if (this.sendingCount > 3) {
+      this.sendingCount += 1; console.log("start" + this.sendingCount);
+      if (this.sendingCount > 2) {
         return;
       }
       const tosend = event.data
       console.log(event.data)
-      this.sendingCount += 1
       const res = await this.allFileObjs[tosend].liveSend();
-
+      if (this.sendingCount > 0) this.sendingCount -= 1;
+      console.log("end" + this.sendingCount);
     })
     this.statusSource.addEventListener("update", event => {
       const obj = JSON.parse(event.data)
@@ -120,6 +130,10 @@ class File {
         this.count += 1;
         this.setDisplay(ui.loading, "none");
         this.setText(ui.statusText, `${this.count}_✅`);
+        break;
+      case "Canceled":
+        this.setDisplay(ui.loading, "none");
+        this.setText(ui.statusText, "Canceled");
         break;
       default:
         console.warn(`Unknown status: ${status}`);
@@ -171,7 +185,7 @@ function createFileUi(file) {
 
   nameRow.appendChild(nameText);
   nameRow.appendChild(loadStatDiv);
-  nameText.textContent = "📁 "+file.name + `(${fileSize})`;
+  nameText.textContent = "📁 " + file.name + `(${fileSize})`;
   oneFileSet.appendChild(nameRow);
   show_files.appendChild(oneFileSet);
   return {
