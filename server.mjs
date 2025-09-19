@@ -3,10 +3,14 @@ import { checkDevice, getIpv4 } from "./model/checkDevice.mjs";
 import { routes } from "./routes/addRoute.mjs";
 import { handle404 } from "./routes/mainRoutes.mjs";
 import qrcode from "qrcode-terminal";
+import { randomUUID } from "node:crypto";
 export const port = 4000;
 export const server = http.createServer(async (req, res) => {
   const isServer = checkDevice(req.socket.address().address);
-  
+  if (!req.headers.cookie) {
+    const deviceid = randomUUID()
+    res.setHeader("set-cookie", `deviceid=${deviceid}; httponly; path=/; max-age=23429384723984`)
+  }
   for (let route of routes) {
     if (req.url === route.url) {
       await route.handler(req, res, isServer);

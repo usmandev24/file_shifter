@@ -7,6 +7,8 @@
       "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
       "Courier New", monospace;
+    --color-amber-300: oklch(87.9% 0.169 91.605);
+    --color-gray-300: oklch(87.2% 0.01 258.338);
     --color-gray-500: oklch(55.1% 0.027 264.364);
     --color-black: #000;
     --spacing: 0.25rem;
@@ -1819,9 +1821,6 @@
   .z-10 {
     z-index: 10;
   }
-  .m-1 {
-    margin: calc(var(--spacing) * 1);
-  }
   .m-2 {
     margin: calc(var(--spacing) * 2);
   }
@@ -1945,6 +1944,9 @@
   .mt-4 {
     margin-top: calc(var(--spacing) * 4);
   }
+  .mr-2 {
+    margin-right: calc(var(--spacing) * 2);
+  }
   .mr-3 {
     margin-right: calc(var(--spacing) * 3);
   }
@@ -1960,6 +1962,9 @@
   .ml-2 {
     margin-left: calc(var(--spacing) * 2);
   }
+  .ml-auto {
+    margin-left: auto;
+  }
   .status {
     display: inline-block;
     aspect-ratio: 1 / 1;
@@ -2289,6 +2294,9 @@
         --join-ee: var(--radius-field);
       }
     }
+  }
+  .block {
+    display: block;
   }
   .flex {
     display: flex;
@@ -2296,14 +2304,14 @@
   .hidden {
     display: none;
   }
+  .inline-block {
+    display: inline-block;
+  }
   .inline-flex {
     display: inline-flex;
   }
   .h-2 {
     height: calc(var(--spacing) * 2);
-  }
-  .h-4 {
-    height: calc(var(--spacing) * 4);
   }
   .h-8 {
     height: calc(var(--spacing) * 8);
@@ -2311,23 +2319,8 @@
   .h-12 {
     height: calc(var(--spacing) * 12);
   }
-  .h-100 {
-    height: calc(var(--spacing) * 100);
-  }
-  .h-\[4rem\] {
-    height: 4rem;
-  }
-  .h-\[cal\(\)\] {
-    height: cal();
-  }
   .h-\[calc\(100vh-4rem\)\] {
     height: calc(100vh - 4rem);
-  }
-  .h-full {
-    height: 100%;
-  }
-  .min-h-screen {
-    min-height: 100vh;
   }
   .w-8 {
     width: calc(var(--spacing) * 8);
@@ -2399,6 +2392,12 @@
       outline-offset: 2px;
     }
   }
+  .list-inside {
+    list-style-position: inside;
+  }
+  .list-disc {
+    list-style-type: disc;
+  }
   .alert-horizontal {
     justify-content: start;
     justify-items: start;
@@ -2446,17 +2445,8 @@
   .justify-start {
     justify-content: flex-start;
   }
-  .justify-items-center {
-    justify-items: center;
-  }
-  .justify-items-center-safe {
-    justify-items: safe center;
-  }
   .gap-1 {
     gap: calc(var(--spacing) * 1);
-  }
-  .gap-2 {
-    gap: calc(var(--spacing) * 2);
   }
   .gap-3 {
     gap: calc(var(--spacing) * 3);
@@ -2466,9 +2456,6 @@
   }
   .self-start {
     align-self: flex-start;
-  }
-  .overflow-auto {
-    overflow: auto;
   }
   .rounded-lg {
     border-radius: var(--radius-lg);
@@ -2561,14 +2548,14 @@
     color: var(--color-warning-content);
     --alert-color: var(--color-warning);
   }
-  .border-base-100 {
-    border-color: var(--color-base-100);
-  }
   .border-base-200 {
     border-color: var(--color-base-200);
   }
   .border-base-300 {
     border-color: var(--color-base-300);
+  }
+  .border-gray-300 {
+    border-color: var(--color-gray-300);
   }
   .border-gray-500 {
     border-color: var(--color-gray-500);
@@ -2576,11 +2563,11 @@
   .border-primary {
     border-color: var(--color-primary);
   }
+  .bg-amber-300 {
+    background-color: var(--color-amber-300);
+  }
   .bg-base-100 {
     background-color: var(--color-base-100);
-  }
-  .bg-base-200 {
-    background-color: var(--color-base-200);
   }
   .bg-base-300 {
     background-color: var(--color-base-300);
@@ -2599,9 +2586,6 @@
   }
   .p-4 {
     padding: calc(var(--spacing) * 4);
-  }
-  .pr-2 {
-    padding-right: calc(var(--spacing) * 2);
   }
   .text-center {
     text-align: center;
@@ -2685,12 +2669,6 @@
   .progress-info {
     color: var(--color-info);
   }
-  .progress-primary {
-    color: var(--color-primary);
-  }
-  .progress-primary {
-    color: var(--color-primary);
-  }
   .progress-success {
     color: var(--color-success);
   }
@@ -2717,44 +2695,6 @@
   }
   .text-warning {
     color: var(--color-warning);
-  }
-  .btn-link {
-    text-decoration-line: underline;
-    outline-color: currentColor;
-    --btn-border: #0000;
-    --btn-bg: #0000;
-    --btn-fg: var(--color-primary);
-    --btn-noise: none;
-    --btn-shadow: "";
-    &:is(.btn-active, :hover, :active:focus, :focus-visible) {
-      text-decoration-line: underline;
-      --btn-border: #0000;
-      --btn-bg: #0000;
-    }
-    @media (hover: none) {
-      &:hover:not(.btn-active, :active, :focus-visible, :disabled, [disabled], .btn-disabled) {
-        text-decoration-line: none;
-      }
-    }
-  }
-  .btn-link {
-    text-decoration-line: underline;
-    outline-color: currentColor;
-    --btn-border: #0000;
-    --btn-bg: #0000;
-    --btn-fg: var(--color-primary);
-    --btn-noise: none;
-    --btn-shadow: "";
-    &:is(.btn-active, :hover, :active:focus, :focus-visible) {
-      text-decoration-line: underline;
-      --btn-border: #0000;
-      --btn-bg: #0000;
-    }
-    @media (hover: none) {
-      &:hover:not(.btn-active, :active, :focus-visible, :disabled, [disabled], .btn-disabled) {
-        text-decoration-line: none;
-      }
-    }
   }
   .transition-all {
     transition-property: all;
@@ -2841,14 +2781,6 @@
     --btn-color: var(--color-primary);
     --btn-fg: var(--color-primary-content);
   }
-  .btn-secondary {
-    --btn-color: var(--color-secondary);
-    --btn-fg: var(--color-secondary-content);
-  }
-  .btn-secondary {
-    --btn-color: var(--color-secondary);
-    --btn-fg: var(--color-secondary-content);
-  }
   .input-primary {
     &, &:focus, &:focus-within {
       --input-color: var(--color-primary);
@@ -2857,6 +2789,16 @@
   .input-primary {
     &, &:focus, &:focus-within {
       --input-color: var(--color-primary);
+    }
+  }
+  .placeholder\:text-error {
+    &::placeholder {
+      color: var(--color-error);
+    }
+  }
+  .placeholder\:text-warning {
+    &::placeholder {
+      color: var(--color-warning);
     }
   }
   .active\:file-input-success {
@@ -2879,6 +2821,11 @@
       &, &:focus, &:focus-within {
         --input-color: var(--color-success);
       }
+    }
+  }
+  .disabled\:text-base-content {
+    &:disabled {
+      color: var(--color-base-content);
     }
   }
   .md\:m-8 {
@@ -2944,20 +2891,6 @@
     @media (width >= 64rem) {
       font-size: var(--text-2xl);
       line-height: var(--tw-leading, var(--text-2xl--line-height));
-    }
-  }
-  .lg\:btn-lg {
-    @media (width >= 64rem) {
-      --fontsize: 1.125rem;
-      --btn-p: 1.25rem;
-      --size: calc(var(--size-field, 0.25rem) * 12);
-    }
-  }
-  .lg\:btn-lg {
-    @media (width >= 64rem) {
-      --fontsize: 1.125rem;
-      --btn-p: 1.25rem;
-      --size: calc(var(--size-field, 0.25rem) * 12);
     }
   }
   .lg\:card-lg {

@@ -46,6 +46,30 @@ addRoute('/server-receive', async (req, res, isServer) => {
   else handle404(req, res)
 
 })
+addRoute('/live-send', async (req, res, isServer) => {
+  if (true) {
+    res.writeHead(200, 'Ok', {
+      'content-type': 'text/html',
+      'cache-control': 'no-cache'
+    })
+    await serverFile(req, res, 'public', 'live-send.html');
+    res.end();
+  }
+  else handle404(req, res)
+
+})
+addRoute('/send-by-pc', async (req, res, isServer) => {
+  if (true) {
+    res.writeHead(200, 'Ok', {
+      'content-type': 'text/html',
+      'cache-control': 'no-cache'
+    })
+    await serverFile(req, res, 'public', 'send-by-pc.html');
+    res.end();
+  }
+  else handle404(req, res)
+
+})
 
 
 addRoute('/public/styles/main_styles.css', async (req, res) => {
