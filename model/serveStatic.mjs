@@ -1,6 +1,7 @@
 import path from "node:path";
 import {addRoute } from "../routes/addRoute.mjs";
 import * as fs from "node:fs";
+import { memtype } from "./memtype.mjs";
 
 export async function serveFolder(...paths) {
   let safePath = path.join(...paths);
@@ -9,7 +10,8 @@ export async function serveFolder(...paths) {
     const url = "/"+paths.join("/")+"/"+file;
     addRoute(url,async (req, res) => {
       res.writeHead(200, "OK", {
-        'cache-control': 'no-cache'
+        'cache-control': 'no-cache',
+        "content-type": memtype(file)
       })
       await serverFile(req, res, ...paths,file)
     })
