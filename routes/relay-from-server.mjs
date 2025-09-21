@@ -4,13 +4,12 @@ import { PassThrough } from "node:stream";
 import { serverFile } from "../model/serveStatic.mjs";
 import { createServer } from "node:http";
 import parseURLquery from "../model/queryparser.mjs";
-import { memtype } from "../model/memtype.mjs";
-import { stat } from "node:fs";
+import { addEmoji, memtype } from "../model/memtype.mjs";
 const emitter = new EventEmitter();
 
 let State = {}
 let server = createServer(async (req, res) => {
-  req.setEncoding;
+  req.setEncoding;res.socket.bytesWritten
   req.headers.cookie;
   await req.read();
   req.on("");
@@ -36,7 +35,6 @@ function addLinksRouts(deviceID, metaData) {
   let allFilesInfo = {};
   for (let file of metaData) {
     const url = `/relay-from-server/file?name=${encodeURIComponent(file.name)}$device-id=${encodeURIComponent(deviceID)}`;
-
     const fileKey = file.size + file.name;
     allFilesInfo[fileKey] = {
       key: fileKey,
@@ -54,10 +52,9 @@ function addLinksRouts(deviceID, metaData) {
       if (!file.relayStream) {
         stream = await makeDownloadAble(deviceID, fileKey);
         if (stream === "busy") {
-          res.end("busy")
+          res.end("Servr Busy")
           return;
         }
-        if (!file.relayStream) await makeDownloadAble(deviceID, fileKey)
         stream = file.relayStream
       }
       const type = memtype(file.name); console.log(type)
@@ -66,11 +63,19 @@ function addLinksRouts(deviceID, metaData) {
         "content-type": type,
         "content-length": file.size
       });
+  
       stream.pipe(res);
       file.status = "sending";
       file.downloading += 1;
       const receiveID = req.headers.cookie;
+
       emitUpdate("update", deviceID, receiveID, file.key, file.status);
+
+      const sendPercent = setInterval(() => {
+        let percent = res.socket.bytesWritten/file.size * 100;
+        percent = percent.toFixed(0); 
+        emitUpdate("update", deviceID, receiveID, file.key, percent)
+      }, 300);
 
       res.on("finish", () => {
         file.status = "completed";
@@ -79,6 +84,7 @@ function addLinksRouts(deviceID, metaData) {
         if (file.downloading === 0)
           emitter.emit("downloaded", deviceID, file.key);
       });
+
       res.on("close", () => {
         if (file.status != "completed") {
           file.status = "Canceled";
@@ -88,11 +94,13 @@ function addLinksRouts(deviceID, metaData) {
           emitUpdate("update", deviceID, receiveID, file.key, file.status);
           console.log(file.downloading)
         }
+        clearInterval(sendPercent)
       })
-    })
+    });
   }
   State[deviceID]["fileObj"] = allFilesInfo;
   emitter.emit("newFiles", deviceID);
+  
 }
 
 async function makeDownloadAble(deviceID, file) {
@@ -132,8 +140,8 @@ addRoute("/relay-from-server/to-send", async (req, res) => {
   })
 });
 function cleanupRouts(deviceID) {
+  if (State[deviceID] === null || State[deviceID] == {}) return;
   const fileObj = State[deviceID]["fileObj"];
-  if (!fileObj) return;
   for (let file of Object.values(fileObj)) {
     removeRouts(file.link);
   }
@@ -155,8 +163,9 @@ addRoute("/relay-from-server/make", async (req, res) => {
   async function listner(id, key) {
     if (id === deviceID && key === fileKey) {
       req.unpipe(stream);
+      stream.destroy()
       res.end("ok");
-      console.log("Make End")
+      req.destroy();
       file.relayStream = null;
     }
   }

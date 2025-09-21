@@ -1,3 +1,4 @@
+let memtype;
 const file_input = document.getElementById("file-input");
 const show_files = document.getElementById("show-files");
 const device_name_input = document.getElementById("device-name");
@@ -15,7 +16,7 @@ file_input.onchange = liveShare
 
 window.onload = init;
 
-function init() {
+async function init() {
   const deviceName = localStorage.getItem("device-name");
   console.log(deviceName)
   if (deviceName) {
@@ -23,8 +24,14 @@ function init() {
     device_name_input.disabled = true;
     file_input.disabled = false
   }
+  await getMemtype();
+  console.log(memtype.addEmoji)
 }
-
+async function getMemtype() {
+  if (!memtype) {
+    memtype = await import('/public/js/memtype.js');
+  }
+}  
 async function liveShare() {
   file_input.disabled = true;
   device_name_input.disabled = true;
@@ -64,19 +71,14 @@ class Share {
   }
 
   async sendMetaData() {
-    console.log(JSON.stringify(this.matadata))
-    try {
-      let res = await fetch("/relay-from-server/file-meta-data", {
-        method: "POST",
-        body: JSON.stringify(this.matadata),
-        headers: {
-          "devicename": this.deviceName
-        }
-      })
-      return await res.text()
-    } catch (error) {
-      return "Error"
-    }
+    let res = await fetch("/relay-from-server/file-meta-data", {
+      method: "POST",
+      body: JSON.stringify(this.matadata),
+      headers: {
+        "devicename": this.deviceName
+      }
+    })
+    return await res.text()
   }
 
   addListeners() {
@@ -107,50 +109,66 @@ class Share {
 
 
 class File {
-  constructor(file, status = null) {
+  constructor(file, status = "") {
     this.file = file;
     this.status = status;
     this.ui = createFileUi(file);
     this.count = 0;
   }
+  
   update(status) {
     const ui = this.ui;
     this.status = status;
     switch (status) {
       case "pending":
-        this.setDisplay(ui.loading, "none");
-        this.setDisplay(ui.statusText, "inline-block");
-        this.setText(ui.statusText, "pending");
+        this.setDisplay(ui.loading, "inline-block");
+        this.setDisplay(ui.statusText, "none");
+        this.setDisplay(ui.progress, "none")
         break;
       case "sending":
         this.setDisplay(ui.loading, "inline-block");
-        this.setText(ui.statusText, "sending");
+        this.setText(ui.statusText, " sending");
         break;
       case "completed":
         this.count += 1;
         this.setDisplay(ui.loading, "none");
-        this.setText(ui.statusText, `${this.count}_✅`);
+        this.setDisplay(ui.progress, "none")
+        if (this.count > 1) {
+          this.setText(ui.statusText, `${this.count} times ✅`);
+        } else {
+          this.setText(ui.statusText, `✅`);
+        }
+        
         break;
       case "Canceled":
         this.setDisplay(ui.loading, "none");
-        this.setText(ui.statusText, "Canceled");
+        this.setDisplay(ui.progress, "none");
+        this.setText(ui.statusText, "⚠️ canceled");
         break;
       default:
-        console.warn(`Unknown status: ${status}`);
+        this.setDisplay(ui.loading, "none");
+        this.setDisplay(ui.progress, "inline-block")
+        ui.progress.style.setProperty("--value", status)
+        this.setText(ui.statusText, " " + status +"%");
     }
   }
   async liveSend() {
-    const file = this.file;
-    const res = await fetch('/relay-from-server/make', {
-      method: "POST",
-      body: file,
-      headers: {
-        "filename": file.name,
-        "filesize": file.size
-      }
-    });
-    const textRes = await res.text()
-    return textRes;
+    try {
+      const file = this.file;
+      const res = await fetch('/relay-from-server/make', {
+        method: "POST",
+        body: file,
+        headers: {
+          "filename": file.name,
+          "filesize": file.size
+        }
+      });
+      const textRes = await res.text()
+      return textRes;
+    } catch (error) {
+      return "Closed"
+    }
+
   }
   setDisplay(ele, value) {
     ele.style.display = value;
@@ -169,27 +187,36 @@ function createFileUi(file) {
     className: "flex w-full justify-between  break-all items-center",
   });
   const nameText = document.createElement("h3");
-  nameText.className = "text-[0.85rem] font-bold md:text-[1rem]";
-
+  nameText.className = "text-[0.85rem] font-bold";
   const loading = el("span", {
-    className: "loading loading-spinner text-success"
+    className: " loading loading-dots"
   })
+  const progress = el("div", {
+    className: "radial-progress text-info ",
+    ariaValueNow: "70",
+    role: "progressbar"
+  })
+  progress.setAttribute(
+    "style",
+    "--value:70; --size:1.3rem;"
+  );
+  progress.style.display = "none"
   const statusText = el("span", {
-    className: "text-info",
-  });
+    className: "",
+  }, "");
   const loadStatDiv = el("div", {
-    className: "ml-auto mr-2 btn btn-outline"
-  }, loading, statusText)
+    className: "ml-auto mr-2 inline-flex justify-between align-center-safe gap-2"
+  }, loading, progress, statusText,)
 
   let fileSize = calcSize(file.size)
 
   nameRow.appendChild(nameText);
   nameRow.appendChild(loadStatDiv);
-  nameText.textContent = "📁 " + file.name + `(${fileSize})`;
+  nameText.textContent = memtype.addEmoji(file.name) + file.name + `(${fileSize})`;
   oneFileSet.appendChild(nameRow);
   show_files.appendChild(oneFileSet);
   return {
-    oneFileSet, nameRow, nameText, loadStatDiv, statusText, loading
+    oneFileSet, nameRow, nameText, loadStatDiv, statusText, loading, progress
   }
 }
 
