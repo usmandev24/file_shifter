@@ -2,6 +2,7 @@ let memtype;
 const file_input = document.getElementById("file-input");
 const show_files = document.getElementById("show-files");
 const device_name_input = document.getElementById("device-name");
+const password_input = document.getElementById("password");
 
 const emitter = new EventTarget();
 localStorage.removeItem("device-name")
@@ -35,20 +36,23 @@ async function getMemtype() {
 async function liveShare() {
   file_input.disabled = true;
   device_name_input.disabled = true;
+  password_input.disabled = true;
   if (!localStorage.getItem("device-name")) {
     localStorage.setItem("device-name", device_name_input.value)
   }
   const deviceName = localStorage.getItem("device-name").replaceAll("-", "_")
-  const app = new Share(file_input, deviceName);
+  const password = password_input.value;
+  const app = new Share(file_input, deviceName, password);
   await app.init()
 
   window.onbeforeunload = app.close.bind(app)
 }
 
 class Share {
-  constructor(fileInput, deviceName) {
+  constructor(fileInput, deviceName, password = "") {
     this.fileInput = fileInput;
     this.deviceName = deviceName;
+    this.password = password;
     this.statusSource = new EventSource("/relay-from-server/status");
     this.toSendSource = new EventSource("/relay-from-server/to-send");
     this.allFileObjs = {};
@@ -75,7 +79,8 @@ class Share {
       method: "POST",
       body: JSON.stringify(this.matadata),
       headers: {
-        "devicename": this.deviceName
+        "devicename": this.deviceName,
+        "password" : this.password
       }
     })
     return await res.text()
