@@ -1,124 +1,161 @@
+let memtype;
 const show_files = document.getElementById("show-containers")
 const emitter = new EventTarget();
-function main() {
-  getFileToDownload()
-  emitter.addEventListener("new", (event) => {
-    const State = event.detail;
-    console.log(State)
-    for (let deviceId of Object.keys(State)) {
-      if (State[deviceId] === null) continue;
-      const dname = State[deviceId].name;
-      const filesObj = State[deviceId].fileObj;
-      const dDiv = new FileContainer(dname)
-      for (let file of Object.values(filesObj)
-      ) {
-        const linkObj = new FileLink(file.name, file.link)
-        dDiv.appnedLink(linkObj.ui.oneFileSet)
-      }
-    }
-  })
+
+let allContainers = []
+async function main() {
+  await getMemtype()
+  const STATE = await getFileToDownload();
+  const liveShared = STATE["liveShared"];
+  for (let key of Object.keys(liveShared)) {
+    if (!liveShared[key]) continue;
+    FilesContainer.create(key, liveShared[key], "live");
+  }
 }
 
 window.addEventListener("load", main)
-class FileContainer {
-  constructor(deviceName) {
+class FilesContainer {
+  constructor(id, obj, method) {
+    this.deviceId = id
+    this.deviceName = obj["name"]
+    this.method = method;
+    this.filesObj = obj["filesObj"]
     this.dom = document.createElement("div");
-    show_files.appendChild(this.dom);
     this.dom.className = "w-full mt-3 border border-gray-300 rounded-lg"
-    this.links = [];
-    this.addTitle(deviceName);
+    this.allFileStates = Object.create(null);
+    this.lockUi = createLockUi();
+    this.addTitle();
   }
-  appnedLink(link) {
-    this.dom.appendChild(link);
-    this.links.push(link)
+  static create(id, obj, method) {
+    const containerObj = new FilesContainer(id, obj, method);
+    show_files.appendChild(containerObj.dom);
+    if (obj["filesObj"] === "locked") containerObj.renderLock();
+    else containerObj.renderFiles();
+    return containerObj;
   }
-  addTitle(deviceName) {
+  renderFiles() {
+    for (let fileKey of Object.keys(this.filesObj)) {
+      const file = this.filesObj[fileKey]
+      const fileState = new FileSTATE(file.name, file.link, "pending")
+      fileState.appendTo(this.dom)
+      this.allFileStates[fileKey] = fileState;
+    }
+  }
+  renderLock() {
+    const lockUi = this.lockUi
+    this.dom.appendChild(lockUi.lockDiv);
+    lockUi.btn.onclick = this.unlock.bind(this)
+  }
+  async unlock(event) {
+    event.stopPropagation();
+    const lockUi = this.lockUi;
+    const res = await fetch("/shared-files/unlock", {
+      method: 'GET',
+      headers: {
+        "method": "live",
+        "id" : this.deviceId,
+        "pass": lockUi.input.value
+      }
+    })
+    const resText = await res.text();
+    if (resText != "false") {
+      lockUi.lockDiv.remove();
+      this.filesObj = JSON.parse(resText)
+      console.log(this.filesObj)
+      this.renderFiles()
+    } else {
+      lockUi.labelText.textContent = "*Enter Password Again |"
+    }
+  }
+  addTitle() {
     this.dom.appendChild(el("h2", {
       className: "text-center text-lg p-4"
-    }, deviceName + ": Live Sharing"))
+    }, "🔴 Live Sharing :" + this.deviceName))
   }
   remove() {
     this.dom.remove()
   }
 }
-class FileLink {
-  constructor(filename, link, status = null) {
-    this.status = status
-    this.ui = createFileUi();
-    this.count = 0;
-    this.name = filename;
+class FileSTATE {
+  constructor(fileName, link, status = null) {
+    this.name = fileName;
     this.link = link
-    this.create()
+    this.status = status
+    this.ui = createFileUi(fileName, link);
+    this.count = 0;
   }
-  create() {
-    const ui = this.ui;
-    ui.link.textContent = this.name;
-    ui.link.href = this.link
+  appendTo(dom) {
+    dom.appendChild(this.ui.oneFileSet)
   }
-  update(status) {
-    const ui = this.ui
-    if (status === "pending") {
-      ui.loading.style.display = "none";
-      ui.statusBtn.style.display = "inline-flex";
-      ui.statusBtn.textContent = "pending";
-
-    } else if (status === "sending") {
-      ui.loading.style.display = "inline-block";
-
-    } else if (status === "completed") {
-      this.count += 1;
-      ui.loading.style.display = "none";
-      ui.statusBtn.textContent = `${this.count} ✅`;
-    }
-  }
+  
 }
 async function getFileToDownload() {
-
-  fetch("/relay-from-server").then(async (res) => {
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder()
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      const links = decoder.decode(value, { stream: true });
-      emitter.dispatchEvent(new CustomEvent("new", { detail: JSON.parse(links) }))
-    }
-  })
-    .catch(err => {
-      emitter.dispatchEvent(new CustomEvent("error", { detail: err }))
-    })
-
+  const res = await fetch("/shared-files");
+  return JSON.parse(await res.text())
+}
+function createLockUi () {
+  const input = document.createElement("input");
+  input.type = "text";
+  const labelText = el("span", {}, "Enter Password |")
+  const lable = el("lable", {
+    className:"input input-primary"
+  }, labelText, input)
+  
+  const btn = el("div", {
+    className : "btn btn-primary"
+  }, "Ok")
+  const lockDiv = el("div", {
+    className : "flex flex-row justify-center items-center gap-2 pb-6"
+  }, lable, btn)
+  return {input , lable,labelText, btn, lockDiv}
 }
 
-function createFileUi() {
+function createFileUi(fileName, link) {
   //Dom Elements ;
   const oneFileSet = el("div", {
     className:
       "flex flex-col gap-1  w-full p-2 mt-3 border border-base-200 bg-base-100 rounded-lg ",
   });
   const nameRow = el("div", {
-    className: "flex justify-between  break-all items-center",
+    className: "flex w-full justify-between  break-all items-center",
   });
-  const link = el("a")
-  const nameText = el("h3", {
-    className: "text-[0.85rem] text-info font-bold md:text-[1rem]"
-  }, link)
-  const loading = el("span", {
-    className: "loading loading-spinner text-success"
-  })
+  const nameText = document.createElement("h3");
+  nameText.className = "text-[0.85rem] font-bold";
 
-  loading.style.display = "none";
-  const statusBtn = el("button", {
-    className: "btn btn-sm md:btn-md  btn-outline text-primary",
-    disabled: true,
-  }, "📥", loading);
+  const loading = el("span", {
+    className: " loading loading-dots"
+  })
+  const progress = el("div", {
+    className: "radial-progress text-info ",
+    ariaValueNow: "70",
+    role: "progressbar"
+  })
+  progress.setAttribute(
+    "style",
+    "--value:70; --size:1.3rem;"
+  );
+  progress.style.display = "none"
+  const statusText = el("span", {
+    className: "",
+  }, "");
+  const downBtn = el("a", {
+    href: link
+  }, "📥")
+  
+  const loadStatDiv = el("div", {
+    className: "ml-auto mr-2 inline-flex justify-between align-center-safe gap-2"
+  }, loading, progress, statusText, downBtn)
+
   nameRow.appendChild(nameText);
-  nameRow.appendChild(statusBtn);
+  nameRow.appendChild(loadStatDiv);
+  nameText.textContent = memtype.addEmoji(fileName) + fileName;
   oneFileSet.appendChild(nameRow);
   return {
-    oneFileSet, nameRow, nameText, link, statusBtn, loading
+    oneFileSet, nameRow, nameText, loadStatDiv, statusText, loading, progress
+    , downBtn
   }
 }
+
 function el(tag, props = {}, ...children) {
   const e = document.createElement(tag);
   Object.assign(e, props);
@@ -130,3 +167,8 @@ function el(tag, props = {}, ...children) {
   return e;
 
 }
+async function getMemtype() {
+  if (!memtype) {
+    memtype = await import('/public/js/memtype.js');
+  }
+}  

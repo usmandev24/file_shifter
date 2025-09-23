@@ -14,3 +14,4 @@ serveFolder('public', "js");
 import("./send-to-server.mjs")
 import('./mainRoutes.mjs')
 import('./relay-from-server.mjs')
+import('./receiveRoutes.mjs')

@@ -5,8 +5,6 @@ const device_name_input = document.getElementById("device-name");
 const password_input = document.getElementById("password");
 
 const emitter = new EventTarget();
-localStorage.removeItem("device-name")
-
 device_name_input.onkeyup = () => {
   console.log(device_name_input.value)
   if (device_name_input.value != "") {
