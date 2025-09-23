@@ -5,10 +5,11 @@ import { serverFile } from "../model/serveStatic.mjs";
 import { createServer } from "node:http";
 import parseURLquery from "../model/queryparser.mjs";
 import { addEmoji, memtype } from "../model/memtype.mjs";
-const emitter = new EventEmitter();
 
+export const emitter = new EventEmitter();
 export let State = Object.create(null)
 export let PASSWORDS = Object.create(null);
+
 let server = createServer(async (req, res) => {
   req.setEncoding; res.socket.bytesWritten
   req.headers.cookie;
@@ -19,7 +20,7 @@ let server = createServer(async (req, res) => {
 addRoute("/relay-from-server/file-meta-data", async (req, res) => {
   req.setEncoding("utf-8");
   const deviceID = req.headers.cookie;
-  State[deviceID] =Object.create(null) ;
+  State[deviceID] = Object.create(null);
   State[deviceID].name = req.headers.devicename
   PASSWORDS[deviceID] = req.headers.password;
   console.log(PASSWORDS[deviceID])
@@ -40,15 +41,15 @@ function addLinksRouts(deviceID, metaData) {
   for (let file of metaData) {
     const url = `/relay-from-server/file?name=${encodeURIComponent(file.name)}$device-id=${encodeURIComponent(deviceID)}`;
     const fileKey = file.size + file.name;
-    const fileObj = Object.create(null);
-    fileObj.key = fileKey;
-    fileObj.name = file.name;
-    fileObj.size = file.size;
-    fileObj.status = "pending";
-    fileObj.link = url;
-    fileObj.relayStream = null;
-    fileObj.downloading = 0
-    allFilesObj[fileKey] = fileObj;
+    const fileInfo = Object.create(null);
+    fileInfo.key = fileKey;
+    fileInfo.name = file.name;
+    fileInfo.size = file.size;
+    fileInfo.status = "pending";
+    fileInfo.link = url;
+    fileInfo.relayStream = null;
+    fileInfo.downloading = 0
+    allFilesObj[fileKey] = fileInfo;
 
     addRoute(url, async (req, res) => {
       const file = allFilesObj[fileKey]
@@ -104,7 +105,15 @@ function addLinksRouts(deviceID, metaData) {
     });
   }
   State[deviceID].filesObj = allFilesObj;
-  emitter.emit("newFiles", deviceID);
+  if (PASSWORDS[deviceID] === "") {
+    emitter.emit("newLiveShare", deviceID, State[deviceID]);
+  } else {
+    let sanitized = Object.create(null);
+    sanitized["name"] = State[deviceID].name;
+    sanitized["filesObj"] = "locked"
+    emitter.emit("newLiveShare", deviceID, sanitized )
+  }
+  
 }
 
 async function makeDownloadAble(deviceID, file) {
@@ -140,13 +149,13 @@ addRoute("/relay-from-server/to-send", async (req, res) => {
   req.on("close", () => {
     emitter.removeListener("makeDownloadAble", listner);
     cleanupRouts(deviceID);
-    State[deviceID] = null
+      State[deviceID] = null
   })
 });
 function cleanupRouts(deviceID) {
-  if (State[deviceID] === null || State[deviceID] == {}) return;
-  const fileObj = State[deviceID]["fileObj"];
-  for (let file of Object.values(fileObj)) {
+  if(!State[deviceID]) return
+  const fileInfo = State[deviceID]["filesObj"];
+  for (let file of Object.values(fileInfo)) {
     removeRouts(file.link);
   }
 }
@@ -154,7 +163,7 @@ addRoute("/relay-from-server/make", async (req, res) => {
   const { filename, filesize, devicename } = req.headers;
   const deviceID = req.headers.cookie;
   const fileKey = filesize + filename
-  const filesInfo = State[deviceID].fileObj;
+  const filesInfo = State[deviceID].filesObj;
   const file = filesInfo[fileKey];
   const stream = new PassThrough()
   res.writeHead(206, "OK", {
@@ -178,46 +187,6 @@ addRoute("/relay-from-server/make", async (req, res) => {
     emitter.removeListener("downloaded", listner)
   })
 });
-
-addRoute("/relay-from-server/password", (req, res) => {
-  const pass = req.headers.password;
-  const id = req.headers.id;
-  if (PASSWORDS[id] == pass) {
-    res.end(JSON.stringify({id: State[id]}))
-  }
-})
-
-addRoute("/relay-from-server", (req, res) => {
-  res.writeHead(200, {
-    "Cache-Control": "no-cache",
-  });
-  let localState = {}
-  if (PASSWORDS != {}) {
-    for (let key of Object.keys(PASSWORDS)) {
-      if (PASSWORDS[key] == "") {
-        localState[key]  = State[key]
-      } else {
-        localState[key] = {"password" : true}
-      }
-    }
-  }
-  res.end(JSON.stringify(localState));
-})
-addRoute("/relay-from-server/live-receive", (req, res) => {
-  res.writeHead(200, {
-    "Cache-Control": "no-cache",
-    "connection": "keep-alive"
-  })
-  function listner(id, password) {
-    if (password != "")
-      res.write(`event: newFiles\ndata: ${JSON.stringify({ id: State[id] })}`)
-    else res.write(`event: newFiles\ndata: ${{ "password": true }}`)
-  }
-  emitter.on("newFiles", listner);
-  req.on("close", () => {
-    emitter.removeListener("newFiles", listner)
-  })
-})
 
 function emitUpdate(event, sendID, receiveID, key, status) {
   emitter.emit(event, sendID, key, status);
