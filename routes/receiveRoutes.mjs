@@ -36,17 +36,38 @@ class State {
     addRoute("/shared-files/updates", (req, res) => {
       res.writeHead(200, {
         "Cache-Control": "no-cache",
-        "connection": "keep-alive"
+        "connection": "keep-alive",
+        "content-type": "text/event-stream"
       })
       function liveSharelistner(id, obj) {
         let toSend = Object.create(null);
-        toSend[id] = obj
-        res.write(`event: newLiveShare\ndata: ${JSON.stringify(toSend)}`)
+        toSend[id] = obj; 
+        res.write(`event: newLiveShare\ndata: ${JSON.stringify(toSend)}\n\n`)
       }
       liveEmitter.on("newLiveShare", liveSharelistner);
       req.on("close", () => {
         liveEmitter.removeListener("newLiveShare", liveSharelistner)
       })
+    })
+    addRoute("/shared-files/updates/status", (req, res) => {
+      const deviceID = req.headers.cookie;
+      res.writeHead(200, {
+        "Cache-Control": "no-cache",
+        "connection": "keep-alive",
+        "content-type": "text/event-stream"
+      })
+      function liveStatuslistner(sendID, receiveID, key, status) {
+        if (!key) {
+          res.write(`event: liveShareCanceled\ndata: ${JSON.stringify({id: sendID})}\n\n`);
+        }
+        else if (receiveID === deviceID) {
+          res.write(`event: liveFileUpdate\ndata: ${JSON.stringify({ id : sendID, filekey: key, status: status })}\n\n`);
+        }
+      }
+      liveEmitter.on("update", liveStatuslistner);
+      req.on("close", () => {
+        liveEmitter.removeListener("update", liveStatuslistner);
+      });
     })
   }
   toJson() {
@@ -55,9 +76,7 @@ class State {
     for (let key of Object.keys(this.livePasswords)) {
       if (this.livePasswords[key] === "") {
         sanitizedLiveShared[key] = this.liveShared[key]
-      } else  {
-        console.log(this.liveShared)
-        console.log(this.liveShared[key].name);
+      } else {
         sanitizedLiveShared[key] = Object.create(null)
         sanitizedLiveShared[key]["name"] = this.liveShared[key].name;
         sanitizedLiveShared[key]["filesObj"] = "locked";

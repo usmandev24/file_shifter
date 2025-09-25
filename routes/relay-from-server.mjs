@@ -9,7 +9,7 @@ import { addEmoji, memtype } from "../model/memtype.mjs";
 export const emitter = new EventEmitter();
 export let State = Object.create(null)
 export let PASSWORDS = Object.create(null);
-
+let STREAMS = Object.create(null)
 let server = createServer(async (req, res) => {
   req.setEncoding; res.socket.bytesWritten
   req.headers.cookie;
@@ -23,6 +23,7 @@ addRoute("/relay-from-server/file-meta-data", async (req, res) => {
   State[deviceID] = Object.create(null);
   State[deviceID].name = req.headers.devicename
   PASSWORDS[deviceID] = req.headers.password;
+  STREAMS[deviceID] = Object.create(null)
   console.log(PASSWORDS[deviceID])
   let metaData = "";
   req.on("data", (data) => {
@@ -47,21 +48,22 @@ function addLinksRouts(deviceID, metaData) {
     fileInfo.size = file.size;
     fileInfo.status = "pending";
     fileInfo.link = url;
-    fileInfo.relayStream = null;
     fileInfo.downloading = 0
+
     allFilesObj[fileKey] = fileInfo;
+    STREAMS[deviceID][fileKey] = null;
 
     addRoute(url, async (req, res) => {
       const file = allFilesObj[fileKey]
-      let stream = file.relayStream;
+      let stream = STREAMS[deviceID][fileKey]
 
-      if (!file.relayStream) {
+      if (!stream) {
         stream = await makeDownloadAble(deviceID, fileKey);
         if (stream === "busy") {
           res.end("Servr Busy")
           return;
         }
-        stream = file.relayStream
+        stream = STREAMS[deviceID][fileKey]
       }
       const type = memtype(file.name); console.log(type)
       res.writeHead(200, "OK", {
@@ -81,7 +83,7 @@ function addLinksRouts(deviceID, metaData) {
         let percent = res.socket.bytesWritten / file.size * 100;
         percent = percent.toFixed(0);
         emitUpdate("update", deviceID, receiveID, file.key, percent)
-      }, 300);
+      }, 800);
 
       res.on("finish", () => {
         file.status = "completed";
@@ -153,7 +155,8 @@ addRoute("/relay-from-server/to-send", async (req, res) => {
   })
 });
 function cleanupRouts(deviceID) {
-  if(!State[deviceID]) return
+  if(!State[deviceID]) return;
+  emitter.emit("update", deviceID)
   const fileInfo = State[deviceID]["filesObj"];
   for (let file of Object.values(fileInfo)) {
     removeRouts(file.link);
@@ -163,15 +166,14 @@ addRoute("/relay-from-server/make", async (req, res) => {
   const { filename, filesize, devicename } = req.headers;
   const deviceID = req.headers.cookie;
   const fileKey = filesize + filename
-  const filesInfo = State[deviceID].filesObj;
-  const file = filesInfo[fileKey];
+  
   const stream = new PassThrough()
   res.writeHead(206, "OK", {
     connection: "keep-alive",
   });
   req.pipe(stream);
 
-  file.relayStream = stream;
+  STREAMS[deviceID][fileKey] = stream;
   emitter.emit("maded", deviceID, fileKey)
   async function listner(id, key) {
     if (id === deviceID && key === fileKey) {
@@ -179,7 +181,7 @@ addRoute("/relay-from-server/make", async (req, res) => {
       stream.destroy()
       res.end("ok");
       req.destroy();
-      file.relayStream = null;
+      STREAMS[deviceID][fileKey] = null;
     }
   }
   emitter.on("downloaded", listner);
@@ -189,8 +191,7 @@ addRoute("/relay-from-server/make", async (req, res) => {
 });
 
 function emitUpdate(event, sendID, receiveID, key, status) {
-  emitter.emit(event, sendID, key, status);
-  emitter.emit(event, receiveID, key, status)
+  emitter.emit(event, sendID, receiveID, key, status)
 }
 
 addRoute("/relay-from-server/status", (req, res) => {
@@ -200,8 +201,8 @@ addRoute("/relay-from-server/status", (req, res) => {
     "Cache-Control": "no-cache",
     Connection: "keep-alive",
   });
-  function listner(id, key, status) {
-    if (id === deviceID) {
+  function listner(sendID, receiveID, key, status) {
+    if (sendID === deviceID) {
       res.write(`event: update\ndata: ${JSON.stringify({ [key]: status })}\n\n`);
     }
   }
