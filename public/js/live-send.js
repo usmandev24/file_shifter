@@ -184,7 +184,7 @@ function createFileUi(file) {
   //Dom Elements ;
   const oneFileSet = el("div", {
     className:
-      "flex flex-col gap-1  w-full p-2 mt-3 border border-base-200 bg-base-100 rounded-lg ",
+      "flex flex-col gap-1  w-full p-2 mt-3 shadow shadow-sm dark:shadow-md rounded-lg ",
   });
   const nameRow = el("div", {
     className: "flex w-full justify-between  break-all items-center",
@@ -208,7 +208,7 @@ function createFileUi(file) {
     className: "",
   }, "");
   const loadStatDiv = el("div", {
-    className: "ml-auto mr-2 inline-flex justify-between align-center-safe gap-2"
+    className: "ml-auto mr-2 flex justify-between align-center-safe gap-2"
   }, loading, progress, statusText,)
 
   let fileSize = calcSize(file.size)
