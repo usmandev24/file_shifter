@@ -7,10 +7,10 @@ export function removeRouts(path) {
   let toremove = routes.findIndex(({url, handler}, index) => {
     if (path === url) return index;
   })
-  console.log(toremove);
   routes.splice(toremove, 1);
 }
 serveFolder('public', "js");
+import("./identityRouts.mjs")
 import("./send-to-server.mjs")
 import('./mainRoutes.mjs')
 import('./relay-from-server.mjs')

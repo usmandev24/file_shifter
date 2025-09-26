@@ -4,26 +4,50 @@ import { routes } from "./routes/addRoute.mjs";
 import { handle404 } from "./routes/mainRoutes.mjs";
 import qrcode from "qrcode-terminal";
 import { randomUUID } from "node:crypto";
+import cookieParser from "./model/cookie_parser.mjs";
+import { serverFile } from "./model/serveStatic.mjs";
+
 export const port = 4000;
 export const server = http.createServer(async (req, res) => {
   const isServer = checkDevice(req.socket.address().address);
-  if (!req.headers.cookie) {
-    const deviceid = randomUUID()
-    res.setHeader("set-cookie", `deviceid=${deviceid}; httponly; path=/; max-age=23429384723984`)
-  }
+  
   for (let route of routes) {
     if (req.url === route.url) {
-      await route.handler(req, res, isServer);
+      const next = await identityCheck(req, res);
+      if (next) await route.handler(req, res, isServer);
       return;
     }
   }
   handle404(req, res);
 });
 
+async function identityCheck(req, res) {
+  
+  if (
+    req.url === "/public/styles/main_styles.css" ||
+    req.url === "/set-device-name"
+  )
+    return true;
+  const cookie = cookieParser(req.headers.cookie);
+  if (!cookie ) {
+    const deviceid = randomUUID();
+    res.setHeader(
+      "set-cookie",
+      `deviceid=${deviceid}; httponly; path=/; max-age=23429384723984`
+    );
+    await serverFile(req, res, "public", "device-name.html");
+    return false;
+  } else if (!cookie.devicename) {
+    await serverFile(req, res, "public", "device-name.html");
+    return false;
+  }
+  return true;
+}
+
 server.listen(port);
 server.on("error", (err) => {
-  console.log(err)
-})
+  console.log(err);
+});
 server.on("listening", () => {
   console.log(`
 

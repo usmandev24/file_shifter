@@ -1,0 +1,89 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/public/styles/main_styles.css" />
+    <title>Home</title>
+  </head>
+  <body>
+    <h1 class="text-xl lg:text-2xl p-2 text-center border-b border-base-300 font-bold">
+        <a href="/">File Shifter</a>
+      </h1>
+    <div
+      class="flex h-[calc(100vh-4rem)] flex-col pl-2 pr-2 md:pl-12 md:pr-12 items-center-safe justify-center-safe"
+    >
+      <div class="card  md:card:md lg:card-lg xl:card:xl bg-base-300">
+        <div class="card-body items-center p-4 md:p-8">
+          <h2 class="card-title text-xl mt-3">Send and Recieve Files</h2>
+          <p
+            class="mt-3 text-lg text-[1rem] text-center alert"
+          >
+            Transfer files seamlessly between your devices over the same 🌐
+            Wi-Fi network, or through a mobile hotspot connection (e.g.,💻PC
+            connected to your 📱phone’s hotspot).
+          </p>
+          <h2 class="text-lg font-bold mt-4">Set Devcie Name first</h2>
+          <div class="mt-3">
+            Enter a Uniqe Device Name 
+            <div class="dropdown dropdown-end md:dropdown-right">
+              <div tabindex="0" role="button" class="text-[0.8rem] pl-2 ">
+                🛈
+              </div>
+              <div  class="dropdown-content z-10 w-40 md:w-max bg-base-100  p-2    shadow-md rounded-lg">
+                <p class="text-sm">Like Usman's LapTop or Ali's Andorid or Nokia 5+</p>
+              </div>
+            </div>
+          </div>
+          <div
+            class="flex flex-col justify-center-safe items-center-safe gap-3 mt-3"
+          >
+            <label class="input input-primary">
+              Device Name:
+              <input type="text" id="input"  />
+            </label>
+            <p class="info" id="info"></p>
+            <button class="btn btn-primary btn-md w-20 md:btn-md lg:btn:lg" id="btn">Ok</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const input = document.getElementById("input");
+      const info = document.getElementById("info");
+      const btn = document.getElementById("btn")
+
+      async function fetchV(value="") {
+        value = value.replace(/&/ig, "-")
+        const req = await fetch("/set-device-name", {
+          method: "GET", 
+          headers: {
+            "devicename": value
+          }
+        });
+        const res = await req.text();
+        console.log(res)
+        if (res === "done") {
+          return true 
+        } else false;
+      }
+      btn.onclick = async (event) => {
+        const r = await fetchV(input.value);
+        if (r) {
+          info.textContent = "Set "+input.value ;
+          btn.disabled = true;
+          let home= document.createElement("a");
+          home.href = "/";
+          setTimeout(() => {
+            home.click()
+          }, 1000);
+          localStorage.setItem("deviceName", input.value)
+        } 
+        else {
+          input.value = "";
+          info.textContent = "Already a device has this name. Enter again.";
+        }
+      }
+
+    </script>
+  </body>
+</html>

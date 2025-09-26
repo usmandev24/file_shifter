@@ -23,6 +23,7 @@ export async function serverFile(req, res, ...filePath) {
     const stream = fs.createReadStream(safePath);
     stream.pipe(res);
     stream.on("end", () => {
+      res.end()
       resolve();
     })
     stream.on('error', (err) => {

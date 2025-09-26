@@ -12,9 +12,25 @@ export async function varifyDir(...dirPath) {
     status = undefined;
   } 
   if (!status) {
-    const newDir =await fs.promises.mkdir(safePath, {recursive: true})
+    const newDir =await fs.promises.mkdir(safePath, {recursive: true});
+    return newDir;
   }
-  return status;
+  return status
+}
+export async function varifyFile(...dirPath) {
+  const safePath = path.join(...dirPath);
+  let status;
+  try {
+    status = await fs.promises.stat(safePath, {"throwIfNoEntry": false});
+    
+  } catch (error) {
+    status = undefined;
+  } 
+  if (!status) {
+    const newFile =await fs.promises.writeFile(safePath, "", {"encoding" : "utf-8"})
+    return newFile
+  }
+  return status
 }
 export async function chkStat(...dirPath) {
   const safePath = path.join(...dirPath);
