@@ -39,39 +39,27 @@
         <div class="card-body items-center p-4 md:p-8">
           <h2 class="card-title text-xl mt-3">
             Live Send Files To Any Device (PC/Mobile)
-          </h2><p
+          </h2>
+          <p
             class="mt-3 text-lg text-[1rem] text-center alert alert-warning alert-soft"
           >
             Live sending will be canceled as you leave this page.
           </p>
-          <p
-            class="mt-3 text-lg text-[1rem] text-center alert alert-info alert-soft"
-          >
-            Choose the files you want to send. Open the receive page of receiving device to start the
-            transfer.
+          <p class="mt-3 text-lg text-[1rem] text-center alert">
+            Choose the files you want to send. Open the receive page of
+            receiving device to start the transfer.
           </p>
-          
 
-          <div class="flex flex-col justify-center align-middle gap-3 mt-3">
-            <label class="input input-primary"
-              >Your Device Name:
-              <input
-                type="text"
-                id="device-name"
-                class="disabled:text-base-content placeholder:text-error"
-                required
-                placeholder="*required"
-              />
-            </label>
-            <label class="input input-primary"
-              >Set Password:
-              <input
-                type="text"
-                id="password"
-                class="disabled:text-base-content"
-                required
-                placeholder="You can leave this empty"
-              />
+          <div class="flex flex-col justify-center align-middle gap-4 mt-3">
+            <p class="alert alert-info alert-soft">
+              Live Sending as:
+              <span class="font-bold p-2" id="device-name"></span>
+            </p>
+            <label class="flex flex-row">
+              <p class="w-max">Device to Send</p>
+              <select id="select" class="select select-secondary">
+                <option disabled selected class="">Pick a Device</option>
+              </select>
             </label>
             <input
               type="file"
@@ -82,7 +70,10 @@
               class="input file-input file-input-primary active:file-input-success"
             />
           </div>
-          <div class="w-full p-1 md:p-4 bg-base-100 rounded-lg" id="show-files"></div>
+          <div
+            class="w-full p-1 md:p-4 bg-base-100 rounded-lg"
+            id="show-files"
+          ></div>
 
           <div
             style="display: none"

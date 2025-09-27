@@ -6,30 +6,43 @@ import qrcode from "qrcode-terminal";
 import { randomUUID } from "node:crypto";
 import cookieParser from "./model/cookie_parser.mjs";
 import { serverFile } from "./model/serveStatic.mjs";
+import EventEmitter from "node:events";
 
+export let connectedDevices = new Map();
+export const serverEmitter = new EventEmitter()
 export const port = 4000;
 export const server = http.createServer(async (req, res) => {
   const isServer = checkDevice(req.socket.address().address);
-  
+
   for (let route of routes) {
     if (req.url === route.url) {
       const next = await identityCheck(req, res);
-      if (next) await route.handler(req, res, isServer);
+      if (next) {
+        addToConnected(req, res)
+        await route.handler(req, res, isServer);
+      }
       return;
     }
   }
   handle404(req, res);
 });
 
+function addToConnected(req, res) {
+  const cookie = cookieParser(req.headers.cookie);
+  if (!connectedDevices.has(cookie.deviceid)) {
+    connectedDevices.set(cookie.deviceid, cookie.devicename)
+    serverEmitter.emit("newDevice", cookie.deviceid, cookie.devicename)
+  }
+}
 async function identityCheck(req, res) {
-  
+
   if (
     req.url === "/public/styles/main_styles.css" ||
     req.url === "/set-device-name"
   )
     return true;
   const cookie = cookieParser(req.headers.cookie);
-  if (!cookie ) {
+  if (!cookie) {
     const deviceid = randomUUID();
     res.setHeader(
       "set-cookie",

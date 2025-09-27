@@ -1,5 +1,7 @@
 import { serverFile } from "../model/serveStatic.mjs";
 import { addRoute } from "./addRoute.mjs";
+import { connectedDevices } from "../server.mjs";
+import { serverEmitter } from "../server.mjs";
 
 addRoute('/', async (req, res, isServer) => {
   res.writeHead(200, 'Ok', {
@@ -10,6 +12,7 @@ addRoute('/', async (req, res, isServer) => {
   else await serverFile(req, res, 'public', 'index.html')
   res.end();
 })
+
 addRoute('/send-to-main-pc', async (req, res, isServer) => {
   if (true) {
     res.writeHead(200, 'Ok', {
@@ -77,6 +80,28 @@ addRoute('/public/styles/main_styles.css', async (req, res) => {
       'cache-control': 'no-cache'
     })
   await serverFile(req, res, 'public', 'styles', 'main_styles.css');
+})
+addRoute("/connected-devices", async (req, res) => {
+  let data = {}
+  for (let key of connectedDevices.keys()) {
+    data[key] = connectedDevices.get(key)
+  }
+  res.writeHead(200, {
+    "content-type": "text/event-stream",
+    "connection": "keep-alive",
+    "cache-control": "no-cache"
+  })
+  setTimeout(() => {
+   res.write(`event: devices\ndata: ${JSON.stringify(data)}\n\n`) 
+  }, 500);
+  
+  function listner(id, name) {
+    res.write(`event: newDevice\ndata: ${JSON.stringify({[id]: name})}\n\n`)
+  }
+  serverEmitter.on("newDevice", listner);
+  req.on("close", () => {
+    serverEmitter.removeListener("newDevice", listner)
+  })
 })
 
 export function handle404(req, res) {

@@ -1,56 +1,68 @@
 let memtype;
 const file_input = document.getElementById("file-input");
 const show_files = document.getElementById("show-files");
-const device_name_input = document.getElementById("device-name");
-const password_input = document.getElementById("password");
+const device_name = document.getElementById("device-name");
+const select = document.getElementById("select");
+
 
 const emitter = new EventTarget();
-device_name_input.onkeyup = () => {
-  console.log(device_name_input.value)
-  if (device_name_input.value != "") {
-    file_input.disabled = false
-  } else file_input.disabled = true
-}
+let toSend;
 file_input.onchange = liveShare
 
 window.onload = init;
 
 async function init() {
-  const deviceName = localStorage.getItem("device-name");
-  console.log(deviceName)
-  if (deviceName) {
-    device_name_input.value = deviceName;
-    device_name_input.disabled = true;
-    file_input.disabled = false
-  }
+  const deviceName = localStorage.getItem("deviceName");
+  (deviceName) ? device_name.textContent = deviceName : null;
   await getMemtype();
-  console.log(memtype.addEmoji)
+  const devicesSource = new EventSource("/connected-devices");
+  addOptions(devicesSource);
+  select.onchange = () => {
+    for (let option of Array.from(select.options)) {
+      if (option.selected) toSend = option.value;
+    }
+    file_input.disabled = false;
+  }
 }
+function addOptions(devicesSource) {
+  devicesSource.addEventListener("devices", event => {
+    const data = JSON.parse(event.data); console.log(data)
+    let option = document.createElement("option");
+    for (let key of Object.keys(data)) {
+      option.textContent = data[key];
+      option.value = key;
+      select.appendChild(option)
+    }
+  })
+  devicesSource.addEventListener("newDevices", event => {
+    const data = JSON.parse(event.data); console.log(data)
+    let option = document.createElement("option");
+    for (let key of Object.keys(data)) {
+      option.textContent = data[key];
+      option.value = key;
+      select.appendChild(option)
+    }
+  })
+}
+
 async function getMemtype() {
   if (!memtype) {
     memtype = await import('/public/js/memtype.js');
   }
-}  
+}
 async function liveShare() {
   file_input.disabled = true;
-  device_name_input.disabled = true;
-  password_input.disabled = true;
-  if (!localStorage.getItem("device-name")) {
-    localStorage.setItem("device-name", device_name_input.value)
-  }
-  const deviceName = localStorage.getItem("device-name").replaceAll("-", "_")
-  const password = password_input.value;
-  const app = new Share(file_input, deviceName, password);
+  const deviceName = localStorage.getItem("deviceName").replaceAll("-", "_")
+  const app = new Share(file_input, deviceName);
   await app.init()
 
   window.onbeforeunload = app.close.bind(app)
 }
 
 class Share {
-  constructor(fileInput, deviceName, password = "") {
+  constructor(fileInput, deviceName) {
     this.fileInput = fileInput;
     this.deviceName = deviceName;
-    this.password = password;
     this.statusSource = new EventSource("/relay-from-server/status");
     this.toSendSource = new EventSource("/relay-from-server/to-send");
     this.allFileObjs = {};
@@ -75,11 +87,7 @@ class Share {
   async sendMetaData() {
     let res = await fetch("/relay-from-server/file-meta-data", {
       method: "POST",
-      body: JSON.stringify(this.matadata),
-      headers: {
-        "devicename": this.deviceName,
-        "password" : this.password
-      }
+      body: JSON.stringify(this.matadata)
     })
     return await res.text()
   }
@@ -118,7 +126,7 @@ class File {
     this.ui = createFileUi(file);
     this.count = 0;
   }
-  
+
   update(status) {
     const ui = this.ui;
     this.status = status;
@@ -141,7 +149,7 @@ class File {
         } else {
           this.setText(ui.statusText, `✅`);
         }
-        
+
         break;
       case "Canceled":
         this.setDisplay(ui.loading, "none");
@@ -152,7 +160,7 @@ class File {
         this.setDisplay(ui.loading, "none");
         this.setDisplay(ui.progress, "inline-block")
         ui.progress.style.setProperty("--value", status)
-        this.setText(ui.statusText, " " + status +"%");
+        this.setText(ui.statusText, " " + status + "%");
     }
   }
   async liveSend() {

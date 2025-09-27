@@ -1,5 +1,4 @@
-
-export default function parseURLquery(link) {
+export default function queryParser(link) {
   let q = link.slice(link.indexOf("?") + 1);
   let qlist = q.split("&");
   let obj = {}
