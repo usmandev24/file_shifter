@@ -2,29 +2,36 @@ import { addRoute, removeRouts } from "./addRoute.mjs";
 import EventEmitter from "node:events";
 import { PassThrough } from "node:stream";
 import { serverFile } from "../model/serveStatic.mjs";
-import { createServer } from "node:http";
-import parseURLquery from "../model/queryparser.mjs";
-import { addEmoji, memtype } from "../model/memtype.mjs";
+import { createServer, get } from "node:http";
+import cookieParser from "../model/cookie_parser.mjs";
+import { memtype } from "../model/memtype.mjs";
 
 export const emitter = new EventEmitter();
 export let State = Object.create(null)
-export let PASSWORDS = Object.create(null);
+
+export let toSendData = new Map();
+export function getId(req) {
+  let data = cookieParser(req.headers.cookie);
+  return data.deviceid;
+}
+
 let STREAMS = Object.create(null)
 let server = createServer(async (req, res) => {
   req.setEncoding; res.socket.bytesWritten
-  req.headers.cookie;
+
   await req.read();
   req.on("");
 });
 //------------------
+
 addRoute("/relay-from-server/file-meta-data", async (req, res) => {
   req.setEncoding("utf-8");
-  const deviceID = req.headers.cookie;
+  const deviceID = getId(req);
   State[deviceID] = Object.create(null);
   State[deviceID].name = req.headers.devicename
-  PASSWORDS[deviceID] = req.headers.password;
+  
   STREAMS[deviceID] = Object.create(null)
-  console.log(PASSWORDS[deviceID])
+  
   let metaData = "";
   req.on("data", (data) => {
     metaData += data;
@@ -75,7 +82,7 @@ function addLinksRouts(deviceID, metaData) {
       stream.pipe(res);
       file.status = "sending";
       file.downloading += 1;
-      const receiveID = req.headers.cookie;
+      const receiveID = getId(req);
 
       emitUpdate("update", deviceID, receiveID, file.key, file.status);
 
@@ -107,15 +114,10 @@ function addLinksRouts(deviceID, metaData) {
     });
   }
   State[deviceID].filesObj = allFilesObj;
-  if (PASSWORDS[deviceID] === "") {
-    emitter.emit("newLiveShare", deviceID, State[deviceID]);
-  } else {
-    let sanitized = Object.create(null);
-    sanitized["name"] = State[deviceID].name;
-    sanitized["filesObj"] = "locked"
-    emitter.emit("newLiveShare", deviceID, sanitized )
-  }
-  
+  let sanitized = Object.create(null);
+  sanitized["name"] = State[deviceID].name;
+  sanitized["filesObj"] = "locked"
+  emitter.emit("newLiveShare", deviceID, sanitized)
 }
 
 async function makeDownloadAble(deviceID, file) {
@@ -136,7 +138,7 @@ async function makeDownloadAble(deviceID, file) {
 }
 
 addRoute("/relay-from-server/to-send", async (req, res) => {
-  const deviceID = req.headers.cookie;
+  const deviceID = getId(req);
   res.writeHead(200, {
     "Content-Type": "text/event-stream",
     "Cache-Control": "no-cache",
@@ -151,11 +153,11 @@ addRoute("/relay-from-server/to-send", async (req, res) => {
   req.on("close", () => {
     emitter.removeListener("makeDownloadAble", listner);
     cleanupRouts(deviceID);
-      State[deviceID] = null
+    State[deviceID] = null
   })
 });
 function cleanupRouts(deviceID) {
-  if(!State[deviceID]) return;
+  if (!State[deviceID]) return;
   emitter.emit("update", deviceID)
   const fileInfo = State[deviceID]["filesObj"];
   for (let file of Object.values(fileInfo)) {
@@ -164,9 +166,9 @@ function cleanupRouts(deviceID) {
 }
 addRoute("/relay-from-server/make", async (req, res) => {
   const { filename, filesize, devicename } = req.headers;
-  const deviceID = req.headers.cookie;
+  const deviceID = getId(req);
   const fileKey = filesize + filename
-  
+
   const stream = new PassThrough()
   res.writeHead(206, "OK", {
     connection: "keep-alive",
@@ -195,7 +197,7 @@ function emitUpdate(event, sendID, receiveID, key, status) {
 }
 
 addRoute("/relay-from-server/status", (req, res) => {
-  const deviceID = req.headers.cookie;
+  const deviceID = getId(req);
   res.writeHead(200, {
     "Content-Type": "text/event-stream",
     "Cache-Control": "no-cache",

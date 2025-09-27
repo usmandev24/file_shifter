@@ -1,14 +1,13 @@
 import { addRoute } from "./addRoute.mjs";
 import { State as liveShared } from "./relay-from-server.mjs";
-import { PASSWORDS as livePasswords } from "./relay-from-server.mjs";
 import { emitter as liveEmitter } from "./relay-from-server.mjs";
+import { getId } from "./relay-from-server.mjs";
 
 class State {
   constructor() {
     this.liveShared = liveShared;
     this.byPcShared;
     this.serverShared;
-    this.livePasswords = livePasswords;
     this.byPcPasswords;
   }
   init() {
@@ -18,20 +17,6 @@ class State {
         "content-type": "application/json"
       });
       res.end(this.toJson());
-    })
-    addRoute("/shared-files/unlock", (req, res) => {
-      const { id, pass, method } = req.headers;
-      res.writeHead(200, {
-        "Cache-Control": "no-cache",
-        "content-type": "application/json"
-      });
-      if (method === "live") {
-        if (this.livePasswords[id] === pass) {
-          res.end(JSON.stringify(this.liveShared[id]["filesObj"]))
-        } else {
-          res.end("false")
-        }
-      }
     })
     addRoute("/shared-files/updates", (req, res) => {
       res.writeHead(200, {
@@ -50,7 +35,7 @@ class State {
       })
     })
     addRoute("/shared-files/updates/status", (req, res) => {
-      const deviceID = req.headers.cookie;
+      const deviceID = getId(req);
       res.writeHead(200, {
         "Cache-Control": "no-cache",
         "connection": "keep-alive",
@@ -72,17 +57,7 @@ class State {
   }
   toJson() {
     let allShared = Object.create(null)
-    let sanitizedLiveShared = Object.create(null);
-    for (let key of Object.keys(this.livePasswords)) {
-      if (this.livePasswords[key] === "") {
-        sanitizedLiveShared[key] = this.liveShared[key]
-      } else {
-        sanitizedLiveShared[key] = Object.create(null)
-        sanitizedLiveShared[key]["name"] = this.liveShared[key].name;
-        sanitizedLiveShared[key]["filesObj"] = "locked";
-      }
-    }
-    allShared["liveShared"] = sanitizedLiveShared;
+    allShared["liveShared"] = this.liveShared;
     return JSON.stringify(allShared)
   }
 }
