@@ -23,31 +23,54 @@
           |||
         </div>
         <ul
-          class="dropdown-content bg-base-100 border border-gray-500 rounded-lg menu menu-vertical w-32 z-10 p-2 m-2 mr-3 "
+          class="dropdown-content bg-base-100 border border-gray-500 rounded-lg menu menu-vertical w-32 z-10 p-2 m-2 mr-3"
         >
           <li class=""><a class="btn mb-1" href="/server-send">Send</a></li>
-          <li class=""><a class="btn mb-1" href="/server-receive">Receive</a></li>
-          <li class=""><a class="link link-info  m-auto mt-1 " href="">About</a></li>
+          <li class="">
+            <a class="btn mb-1" href="/server-receive">Receive</a>
+          </li>
+          <li class="">
+            <a class="link link-info m-auto mt-1" href="">About</a>
+          </li>
         </ul>
       </div>
     </div>
     <div
-      class="flex h-[calc(100vh-4rem)] flex-col items-center-safe justify-center-safe"
+      class="flex h-[calc(100vh-4rem)] p-2 md:pl-12 md:pr-12 flex-col items-center-safe justify-center-safe"
     >
       <div class="card card-md md:card:md lg:card-lg xl:card:xl bg-base-300">
         <div class="card-body items-center p-4 md:p-8">
           <h2 class="card-title text-xl mt-2">Send and Recieve Files</h2>
-          <p class="mt-2  text-lg text-[1rem] text-center alert alert-info alert-soft">
+          <p
+            class="mt-2 text-lg text-[1rem] text-center alert alert-info alert-soft"
+          >
             Transfer files seamlessly between your devices over the same 🌐Wi-Fi
-            network, or through a mobile hotspot connection (e.g., 💻PC connected
-            to your 📱phone’s hotspot).
+            network, or through a mobile hotspot connection (e.g., 💻PC
+            connected to your 📱phone’s hotspot).
+          </p>
+          <p class="p-4 text-lg">
+            Device Name:
+            <span class="text-lg font-bold text-shadow-lg" id="name-div"></span
+            ><a
+              class="rounded-full p-2 ml-2 border border-base-100 cursor-pointer bg-[var(--btn-bg)]"
+              id="edit-name"
+              href="/edit-device-name"
+              >🖉</a
+            >
           </p>
           <div class="card-actions mt-2">
             <a class="btn btn-primary w-24" href="/server-send">🔗 Send</a>
-            <a class="btn btn-primary w-28" href="/server-receive">📥 Receive</a>
+            <a class="btn btn-primary w-28" href="/server-receive"
+              >📥 Receive</a
+            >
           </div>
         </div>
       </div>
     </div>
+    <script>
+      const deviceName = localStorage.getItem("deviceName");
+      const nameDiv = document.getElementById("name-div");
+      nameDiv.textContent = deviceName;
+    </script>
   </body>
 </html>

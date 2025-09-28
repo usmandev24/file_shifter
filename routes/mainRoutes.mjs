@@ -81,6 +81,13 @@ addRoute('/public/styles/main_styles.css', async (req, res) => {
     })
   await serverFile(req, res, 'public', 'styles', 'main_styles.css');
 })
+addRoute("/edit-device-name", async(req , res) => {
+  res.writeHead(200, 'Ok', {
+      'cache-control': 'no-cache',
+      "content-type": "text/html"
+    })
+  await serverFile(req, res, 'public', 'device-name.html');
+})
 addRoute("/connected-devices", async (req, res) => {
   let data = {}
   for (let key of connectedDevices.keys()) {
