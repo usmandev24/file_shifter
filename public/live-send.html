@@ -50,17 +50,28 @@
             receiving device to start the transfer.
           </p>
 
-          <div class="flex flex-col justify-center align-middle gap-4 mt-3">
-            <p class="alert alert-info alert-soft">
-              Live Sending as:
-              <span class="font-bold p-2" id="device-name"></span>
-            </p>
-            <label class="flex flex-row">
-              <p class="w-max">Device to Send</p>
-              <select id="select" class="select select-secondary">
+          <div class="flex flex-col justify-center-safe items-center-safe gap-4 mt-4">
+            <div class="flex flex-row items-baseline justify-between">
+              <p class="w-[8rem]  md:pr-2 pr-1 pl-1">Send To :</p>
+              <select
+                id="select"
+                class="select select-secondary disabled:text-info"
+              >
                 <option disabled selected class="">Pick a Device</option>
               </select>
-            </label>
+              <div class="dropdown dropdown-end md:dropdown-center">
+              <div tabindex="0" role="button" class="text-[0.8rem] pl-2">❔</div>
+              <div
+                class="dropdown-content z-10 w-[300px] md:w-[50vw] bg-base-100 p-4 shadow-md rounded-lg"
+              >
+                <p class="text-sm">
+                  <b>Devices list are updated live. </b><br>If 
+                  device you are looking for not found than ask them to open
+                  this app link in there browser.
+                </p>
+              </div>
+            </div>
+            </div>
             <input
               type="file"
               multiple
@@ -70,8 +81,12 @@
               class="input file-input file-input-primary active:file-input-success"
             />
           </div>
+          <p id="device-name-div" class="hidden alert alert-info alert-soft">
+            Live Sending as:
+            <span class="font-bold" id="device-name"></span>
+          </p>
           <div
-            class="w-full p-1 md:p-4 bg-base-100 rounded-lg"
+            class="hidden w-full p-1 md:p-4 bg-base-100 rounded-lg mt-3"
             id="show-files"
           ></div>
 
@@ -79,6 +94,9 @@
             style="display: none"
             class="break-words text-[0.85rem] h-8 font-bold md:text-[1rem] btn-primary m-auto flex-col align-middle text-secondary, text-primary, text-info, progress-info, progress-error, progress-secondary, alert-error"
           ></div>
+          <div id="cancel-btn" class="hidden mt-3">
+            <a href="/live-send" class="btn btn-error w-[15rem]">Cancel</a>
+          </div>
         </div>
       </div>
     </div>

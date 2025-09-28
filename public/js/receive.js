@@ -248,7 +248,7 @@ function createFileUi(fileName, link) {
   );
   progress.style.display = "none"
   const statusText = el("span", {
-    className: "w-max p-1 text-[0.8rem] md:text-[1rem]",
+    className: "w-max  text-[0.8rem] md:text-[1rem]",
   }, "");
   const downBtn = el("a", {
     href: link,
@@ -256,7 +256,7 @@ function createFileUi(fileName, link) {
   }, "📥")
 
   const loadStatDiv = el("div", {
-    className: "ml-auto  flex justify-between align-center-safe gap-2"
+    className: "ml-auto pl-2 flex justify-between align-center-safe gap-2"
   }, loading, progress, statusText, downBtn)
 
   nameRow.appendChild(nameText);

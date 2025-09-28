@@ -8,11 +8,15 @@ import { memtype } from "../model/memtype.mjs";
 
 export const emitter = new EventEmitter();
 export let State = Object.create(null)
+export let liveSendDevices = new Map();
 
-export let toSendData = new Map();
 export function getId(req) {
   let data = cookieParser(req.headers.cookie);
   return data.deviceid;
+}
+export function getName(req) {
+  let data = cookieParser(req.headers.cookie);
+  return data.devicename;
 }
 
 let STREAMS = Object.create(null)
@@ -28,10 +32,11 @@ addRoute("/relay-from-server/file-meta-data", async (req, res) => {
   req.setEncoding("utf-8");
   const deviceID = getId(req);
   State[deviceID] = Object.create(null);
-  State[deviceID].name = req.headers.devicename
+  State[deviceID].name = getName(req)
   
+  liveSendDevices.set(deviceID, req.headers["devicetosend"])
+
   STREAMS[deviceID] = Object.create(null)
-  
   let metaData = "";
   req.on("data", (data) => {
     metaData += data;
@@ -114,10 +119,7 @@ function addLinksRouts(deviceID, metaData) {
     });
   }
   State[deviceID].filesObj = allFilesObj;
-  let sanitized = Object.create(null);
-  sanitized["name"] = State[deviceID].name;
-  sanitized["filesObj"] = "locked"
-  emitter.emit("newLiveShare", deviceID, sanitized)
+  emitter.emit("newLiveShare", deviceID, State[deviceID])
 }
 
 async function makeDownloadAble(deviceID, file) {

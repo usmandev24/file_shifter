@@ -2,11 +2,13 @@ let memtype;
 const file_input = document.getElementById("file-input");
 const show_files = document.getElementById("show-files");
 const device_name = document.getElementById("device-name");
+const device_nameDiv = document.getElementById("device-name-div")
 const select = document.getElementById("select");
-
+const canclebtn = document.getElementById("cancel-btn")
+const connectedDevices = new EventSource("/connected-devices");
 
 const emitter = new EventTarget();
-let toSend;
+let DeviceToSend;
 file_input.onchange = liveShare
 
 window.onload = init;
@@ -15,34 +17,33 @@ async function init() {
   const deviceName = localStorage.getItem("deviceName");
   (deviceName) ? device_name.textContent = deviceName : null;
   await getMemtype();
-  const devicesSource = new EventSource("/connected-devices");
-  addOptions(devicesSource);
+
+  connectedDevices.addEventListener("devices", event => {
+    const data = JSON.parse(event.data); console.log(data)
+    for (let key of Object.keys(data)) {
+      let option = document.createElement("option");
+      option.textContent = data[key];
+      option.value = key;
+      select.appendChild(option)
+    }
+  })
+
+  connectedDevices.addEventListener("newDevice", event => {
+    const data = JSON.parse(event.data); console.log(data)
+    for (let key of Object.keys(data)) {
+      let option = document.createElement("option");
+      option.textContent = data[key];
+      option.value = key;
+      select.appendChild(option)
+    }
+  })
+
   select.onchange = () => {
     for (let option of Array.from(select.options)) {
-      if (option.selected) toSend = option.value;
+      if (option.selected) DeviceToSend = option.value;
     }
     file_input.disabled = false;
   }
-}
-function addOptions(devicesSource) {
-  devicesSource.addEventListener("devices", event => {
-    const data = JSON.parse(event.data); console.log(data)
-    let option = document.createElement("option");
-    for (let key of Object.keys(data)) {
-      option.textContent = data[key];
-      option.value = key;
-      select.appendChild(option)
-    }
-  })
-  devicesSource.addEventListener("newDevices", event => {
-    const data = JSON.parse(event.data); console.log(data)
-    let option = document.createElement("option");
-    for (let key of Object.keys(data)) {
-      option.textContent = data[key];
-      option.value = key;
-      select.appendChild(option)
-    }
-  })
 }
 
 async function getMemtype() {
@@ -52,19 +53,23 @@ async function getMemtype() {
 }
 async function liveShare() {
   file_input.disabled = true;
+  select.disabled = true;
+  connectedDevices.close();
   const deviceName = localStorage.getItem("deviceName").replaceAll("-", "_")
-  const app = new Share(file_input, deviceName);
-  await app.init()
-
+  show_files.style.display = "block";
+  canclebtn.style.display = "block"
+  const app = new Share(file_input, deviceName, DeviceToSend);
+  await app.init();
   window.onbeforeunload = app.close.bind(app)
 }
 
 class Share {
-  constructor(fileInput, deviceName) {
+  constructor(fileInput, deviceName, toSend) {
     this.fileInput = fileInput;
     this.deviceName = deviceName;
+    this.DeviceToSend = toSend;
     this.statusSource = new EventSource("/relay-from-server/status");
-    this.toSendSource = new EventSource("/relay-from-server/to-send");
+    this.filetoSend = new EventSource("/relay-from-server/to-send");
     this.allFileObjs = {};
     this.sendingCount = 0;
     this.matadata = []
@@ -87,13 +92,16 @@ class Share {
   async sendMetaData() {
     let res = await fetch("/relay-from-server/file-meta-data", {
       method: "POST",
-      body: JSON.stringify(this.matadata)
+      body: JSON.stringify(this.matadata),
+      headers: {
+        "devicetosend": this.DeviceToSend
+      }
     })
     return await res.text()
   }
 
   addListeners() {
-    this.toSendSource.addEventListener("tosend", async event => {
+    this.filetoSend.addEventListener("tosend", async event => {
       this.sendingCount += 1; console.log("start" + this.sendingCount);
       if (this.sendingCount > 2) {
         return;
@@ -114,7 +122,7 @@ class Share {
 
   close() {
     this.statusSource.close();
-    this.toSendSource.close();
+    this.filetoSend.close();
   }
 }
 
@@ -213,10 +221,10 @@ function createFileUi(file) {
   );
   progress.style.display = "none"
   const statusText = el("span", {
-    className: "",
+    className: "w-max  text-[0.8rem] md:text-[1rem]",
   }, "");
   const loadStatDiv = el("div", {
-    className: "ml-auto mr-2 flex justify-between align-center-safe gap-2"
+    className: "ml-auto pl-2  flex justify-between align-center-safe gap-2"
   }, loading, progress, statusText,)
 
   let fileSize = calcSize(file.size)
