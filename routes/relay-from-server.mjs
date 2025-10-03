@@ -77,7 +77,7 @@ function addLinksRouts(deviceID, metaData) {
         }
         stream = STREAMS[deviceID][fileKey]
       }
-      const type = memtype(file.name); console.log(type)
+      const type = memtype(file.name); 
       res.writeHead(200, "OK", {
         "content-disposition": `attachment; filename=${file.name}`,
         "content-type": type,
@@ -112,7 +112,7 @@ function addLinksRouts(deviceID, metaData) {
           if (file.downloading === 0)
             emitter.emit("downloaded", deviceID, file.key);
           emitUpdate("update", deviceID, receiveID, file.key, file.status);
-          console.log(file.downloading)
+          
         }
         clearInterval(sendPercent)
       })

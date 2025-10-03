@@ -351,7 +351,7 @@ function createFileUi(file) {
   const speedEle = el("p", { className: "p-1", textContent: "0.00MB/s" });
 
   const infoAlert = el("div", {
-    className: "alert alert-info alert-soft alert-horizontal p-2 text-[0.85rem] md:text-[9rem]",
+    className: "alert alert-info alert-soft alert-horizontal p-2 text-[0.85rem] md:text-[0.9rem]",
     textContent: "Uploading file to Server",
   });
 
