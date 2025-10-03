@@ -1,12 +1,13 @@
 {
   "name": "file_shifter",
-  "version": "0.1.17",
+  "version": "0.4.5",
   "description": "Share files semlessly between devices connected with same local network",
   "main": "server.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "npx @tailwindcss/cli -i ./public/styles/input.css -o ./public/styles/main_styles.css --watch",
-    "start": "nodemon --ext mjs,json ./server.mjs"
+    "watch": "cross-env npx @tailwindcss/cli -i ./public/styles/input.css -o ./public/styles/main_styles.css --watch",
+    "dev": "cross-env nodemon --ext mjs,json ./server.mjs",
+    "start": "cross-env node ./server.mjs"
   },
   "keywords": [
     "file-share",
@@ -26,6 +27,7 @@
     "tailwindcss": "^4.1.12"
   },
   "dependencies": {
+    "cross-env": "^10.1.0",
     "qrcode-terminal": "^0.12.0"
   }
 }
