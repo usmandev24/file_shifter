@@ -74,7 +74,8 @@ addRoute("/send-to-server", async (req, res, isServer) => {
     if (islast === "true") {
       emitter.emit("done", filename, filesize);
       res.end("Completed");
-      let movePath = ["data", "received", `${filename}`];
+      await varifyDir("direct_received_files")
+      let movePath = ["direct_received_files", `${filename}`];
       let readstream = fs.createReadStream(writePath);
       let moveWriteStream = fs.createWriteStream(path.join(...movePath));
       readstream.pipe(moveWriteStream);
