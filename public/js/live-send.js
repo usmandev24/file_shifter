@@ -4,6 +4,7 @@ const show_files = document.getElementById("show-files");
 const device_name = document.getElementById("device-name");
 const device_nameDiv = document.getElementById("device-name-div")
 const select = document.getElementById("select");
+const selectSkeleton = document.getElementById("select-skeleton")
 const canclebtn = document.getElementById("cancel-btn")
 const connectedDevices = new EventSource("/connected-devices");
 
@@ -24,7 +25,7 @@ async function init() {
       let option = document.createElement("option");
       option.textContent = data[key];
       option.value = key;
-      select.appendChild(option)
+      selectSkeleton.before(option)
     }
   })
 
@@ -34,7 +35,7 @@ async function init() {
       let option = document.createElement("option");
       option.textContent = data[key];
       option.value = key;
-      select.appendChild(option)
+      selectSkeleton.before(option)
     }
   })
 
