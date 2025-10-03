@@ -31,8 +31,8 @@ function addToConnected(req, res) {
   const cookie = cookieParser(req.headers.cookie);
   if (!connectedDevices.has(cookie.deviceid)) {
     connectedDevices.set(cookie.deviceid, cookie.devicename)
-    serverEmitter.emit("newDevice", cookie.deviceid, cookie.devicename)
-  }
+    
+  }serverEmitter.emit("newDevice", cookie.deviceid, cookie.devicename)
 }
 async function identityCheck(req, res) {
 
@@ -63,21 +63,27 @@ server.on("error", (err) => {
 });
 server.on("listening", () => {
   console.log(`
+                                  Welcome to seemless file sharing server app.
+
+                            Copywrite 2025 "USMAN GHANI" https://github.com/usmandev24
+
+                                  <<<<<<<< NOTE: This is a exprimental app >>>>>>>>
 
 ------>   On this PC enter http://localhost:${port} in browser
 
 ------>   On Other device Mobile/PC go to http://${getIpv4()}:${port}`);
-});
-
 try {
   qrcode.generate(`http://${getIpv4()}:${port}`, { small: true }, (qcode) => {
     console.log(`
-OR Scan:
+OR Scan
 ${qcode}`);
   });
 } catch (error) {
   console.error(error);
 }
+});
+
+
 process.on("uncaughtException", (err) => {
   console.error(`Error : ${err}
     Stack: ${err.stack}`);

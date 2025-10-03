@@ -77,15 +77,15 @@ addRoute('/send-by-pc', async (req, res, isServer) => {
 
 addRoute('/public/styles/main_styles.css', async (req, res) => {
   res.writeHead(200, 'Ok', {
-      'cache-control': 'no-cache'
-    })
+    'cache-control': 'no-cache'
+  })
   await serverFile(req, res, 'public', 'styles', 'main_styles.css');
 })
-addRoute("/edit-device-name", async(req , res) => {
+addRoute("/edit-device-name", async (req, res) => {
   res.writeHead(200, 'Ok', {
-      'cache-control': 'no-cache',
-      "content-type": "text/html"
-    })
+    'cache-control': 'no-cache',
+    "content-type": "text/html"
+  })
   await serverFile(req, res, 'public', 'device-name.html');
 })
 addRoute("/connected-devices", async (req, res) => {
@@ -98,12 +98,15 @@ addRoute("/connected-devices", async (req, res) => {
     "connection": "keep-alive",
     "cache-control": "no-cache"
   })
+  let eventEmitted = []
   setTimeout(() => {
-   res.write(`event: devices\ndata: ${JSON.stringify(data)}\n\n`) 
+    res.write(`event: devices\ndata: ${JSON.stringify(data)}\n\n`)
   }, 500);
-  
+
   function listner(id, name) {
-    res.write(`event: newDevice\ndata: ${JSON.stringify({[id]: name})}\n\n`)
+    if (eventEmitted.includes(id)) return;
+    res.write(`event: newDevice\ndata: ${JSON.stringify({ [id]: name })}\n\n`)
+    eventEmitted.push(id)
   }
   serverEmitter.on("newDevice", listner);
   req.on("close", () => {
