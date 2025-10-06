@@ -73,6 +73,7 @@ class FilesContainer {
           const fileData = this.allFileDatas[filekey];
           fileData.update(data.status);
           if (data.status === "completed" || data.status === "Canceled") {
+            console.log("in completed or cancel")
             this.onComplete(filekey)
           } else if (Number(data.status) != NaN) {
             this.onDown(filekey)
@@ -172,6 +173,7 @@ class FileData {
         this.setDisplay(ui.loading, "none");
         this.setDisplay(ui.progress, "none");
         this.setDisplay(ui.downBtn, "none")
+        this.setDisplay(ui.statusText, "inline-block")
         this.setText(ui.statusText, `✅`);
         break;
       case "Canceled":
