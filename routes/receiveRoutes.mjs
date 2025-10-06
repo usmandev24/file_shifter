@@ -101,8 +101,8 @@ addRoute("/receive", async (req, res, isServer) => {
       </h1>
       <div></div>
     </div>
-    <div class="text-center bg-base-300 rounded-4xl font-bold m-16">
-      <h2 class="text-xl p-4">! Recieve Page Already Open</h2>
+    <div class="text-center bg-base-300 rounded-2xl font-bold m-16">
+      <h2 class="text-xl text-warning p-4">! Recieve Page Already Open</h2>
       <p class=" p-4" >Not Allowed! The Receive Page is Already Opened <br> Close this Tab</p>
     </div>
   </body>

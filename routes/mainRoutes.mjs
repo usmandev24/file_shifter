@@ -71,15 +71,28 @@ export function handle404(req, res) {
     'content-type': 'text/html'
   });
   res.end(`
-    <html lang="en" >
+    <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Data Shifter 404</title>
+    <link rel="stylesheet" href="/public/styles/main_styles.css" />
+    <title>404</title>
   </head>
   <body>
-    <h1>404</h1>
+    <div
+      class="flex flex-1 justify-between items-center border-b border-base-300 m-auto"
+    >
+      <div></div>
+      <h1 class="text-xl lg:text-2xl p-2 ml-2 font-bold">
+        <a href="/">File Shifter</a>
+      </h1>
+      <div></div>
+    </div>
+    <div class="text-center bg-base-300 rounded-2xl font-bold m-16">
+      <h2 class="text-4xl text-error p-4">404</h2>
+      <p class=" p-4" >No such page exit<br>Go back to <a class= "link link-info" href= "/">homepage</a></p>
+    </div>
   </body>
-  </html>
+</html>
     `)
 }

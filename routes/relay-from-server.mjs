@@ -243,8 +243,8 @@ addRoute('/live-send', async (req, res, isServer) => {
       </h1>
       <div></div>
     </div>
-    <div class="text-center bg-base-300 rounded-4xl font-bold m-16">
-      <h2 class="text-xl p-4">Not Allowed</h2>
+    <div class="text-center bg-base-300 rounded-2xl font-bold m-16">
+      <h2 class="text-xl text-warning p-4">! Live Send Page Already Open</h2>
       <p class=" p-4" >This Page is Already Opened <br> Close this Tab</p>
     </div>
   </body>
