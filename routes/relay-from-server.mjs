@@ -20,20 +20,14 @@ export function getName(req) {
 }
 
 let STREAMS = Object.create(null)
-let server = createServer(async (req, res) => {
-  req.setEncoding; res.socket.bytesWritten
-
-  await req.read();
-  req.on("");
-});
-//------------------
+let sharingDeives = new Set();
 
 addRoute("/relay-from-server/file-meta-data", async (req, res) => {
   req.setEncoding("utf-8");
   const deviceID = getId(req);
   State[deviceID] = Object.create(null);
   State[deviceID].name = getName(req)
-  
+
   liveSendDevices.set(deviceID, req.headers["devicetosend"])
 
   STREAMS[deviceID] = Object.create(null)
@@ -77,7 +71,7 @@ function addLinksRouts(deviceID, metaData) {
         }
         stream = STREAMS[deviceID][fileKey]
       }
-      const type = memtype(file.name); 
+      const type = memtype(file.name);
       res.writeHead(200, "OK", {
         "content-disposition": `attachment; filename=${file.name}`,
         "content-type": type,
@@ -112,7 +106,7 @@ function addLinksRouts(deviceID, metaData) {
           if (file.downloading === 0)
             emitter.emit("downloaded", deviceID, file.key);
           emitUpdate("update", deviceID, receiveID, file.key, file.status);
-          
+
         }
         clearInterval(sendPercent)
       })
@@ -200,6 +194,7 @@ function emitUpdate(event, sendID, receiveID, key, status) {
 
 addRoute("/relay-from-server/status", (req, res) => {
   const deviceID = getId(req);
+  sharingDeives.add(deviceID)
   res.writeHead(200, {
     "Content-Type": "text/event-stream",
     "Cache-Control": "no-cache",
@@ -213,6 +208,7 @@ addRoute("/relay-from-server/status", (req, res) => {
   emitter.on("update", listner);
   req.on("close", () => {
     emitter.removeListener("update", listner);
+    sharingDeives.delete(deviceID)
   });
 });
 
@@ -223,6 +219,40 @@ function calcSize(size) {
 }
 
 addRoute('/live-send', async (req, res, isServer) => {
+  const deviceID = getId(req);
+  if (sharingDeives.has(deviceID)) {
+    res.writeHead(200, 'Ok', {
+      'content-type': 'text/html',
+      'cache-control': 'no-cache'
+    })
+    res.end(`
+      <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./public/styles/main_styles.css" />
+    <title>Not Allowed</title>
+  </head>
+  <body>
+    <div
+      class="flex flex-1 justify-between items-center border-b border-base-300 m-auto"
+    >
+      <div></div>
+      <h1 class="text-xl lg:text-2xl p-2 ml-2 font-bold">
+        <a href="/">File Shifter</a>
+      </h1>
+      <div></div>
+    </div>
+    <div class="text-center bg-base-300 rounded-4xl font-bold m-16">
+      <h2 class="text-xl p-4">Not Allowed</h2>
+      <p class=" p-4" >This Page is Already Opened <br> Close this Tab</p>
+    </div>
+  </body>
+</html>
+
+      `)
+    return
+  }
   res.writeHead(200, 'Ok', {
     'content-type': 'text/html',
     'cache-control': 'no-cache'

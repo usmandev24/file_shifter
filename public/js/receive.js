@@ -5,6 +5,10 @@ const newFilesUpdates = new EventSource("/shared-files/updates")
 const statusUpdate = new EventSource("/shared-files/updates/status")
 
 let liveContainers = Object.create(null)
+window.onbeforeunload = () => {
+  newFilesUpdates.close();
+  statusUpdate.close();
+}
 async function main() {
   await getMemtype()
   const Data = await getFileToDownload();
