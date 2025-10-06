@@ -3,6 +3,7 @@ import { State as liveShared } from "./relay-from-server.mjs";
 import { emitter as liveEmitter } from "./relay-from-server.mjs";
 import { getId, getName, liveSendDevices } from "./relay-from-server.mjs";
 
+let receivingDevices = new Set()
 class State {
   constructor() {
     this.liveShared = liveShared;
@@ -29,6 +30,7 @@ class State {
 
     addRoute("/shared-files/updates", (req, res) => {
       const reqID = getId(req)
+      receivingDevices.add(reqID)
       res.writeHead(200, {
         "Cache-Control": "no-cache",
         "connection": "keep-alive",
@@ -43,6 +45,7 @@ class State {
       liveEmitter.on("newLiveShare", liveSharelistner);
       req.on("close", () => {
         liveEmitter.removeListener("newLiveShare", liveSharelistner)
+        receivingDevices.delete(reqID)
       })
     })
     addRoute("/shared-files/updates/status", (req, res) => {
@@ -72,5 +75,19 @@ class State {
     return JSON.stringify(allShared)
   }
 }
+addRoute("/receive", async (req, res, isServer) => {
+  const reqID = getId(req)
+  if (receivingDevices.has(reqID)) {
+    
+  }
+  res.writeHead(200, "Ok", {
+    "content-type": "text/html",
+    "cache-control": "no-cache",
+  });
+  await serverFile(req, res, "public", "receive.html");
+  res.end();
+
+});
+
 const receiveHandler = new State();
 receiveHandler.init();

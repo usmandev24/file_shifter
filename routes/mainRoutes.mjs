@@ -14,7 +14,7 @@ addRoute('/', async (req, res, isServer) => {
 })
 
 addRoute('/send-to-main-pc', async (req, res, isServer) => {
-  if (true) {
+  if (!isServer) {
     res.writeHead(200, 'Ok', {
       'content-type': 'text/html',
       'cache-control': 'no-cache'
@@ -23,57 +23,7 @@ addRoute('/send-to-main-pc', async (req, res, isServer) => {
     res.end();
   }
   else handle404(req, res)
-
 })
-addRoute('/send', async (req, res, isServer) => {
-  if (true) {
-    res.writeHead(200, 'Ok', {
-      'content-type': 'text/html',
-      'cache-control': 'no-cache'
-    })
-    await serverFile(req, res, 'public', 'send.html');
-    res.end();
-  }
-  else handle404(req, res)
-
-})
-addRoute('/server-receive', async (req, res, isServer) => {
-  if (isServer) {
-    res.writeHead(200, 'Ok', {
-      'content-type': 'text/html',
-      'cache-control': 'no-cache'
-    })
-    await serverFile(req, res, 'public', 'server-receive.html');
-    res.end();
-  }
-  else handle404(req, res)
-
-})
-addRoute('/live-send', async (req, res, isServer) => {
-  if (true) {
-    res.writeHead(200, 'Ok', {
-      'content-type': 'text/html',
-      'cache-control': 'no-cache'
-    })
-    await serverFile(req, res, 'public', 'live-send.html');
-    res.end();
-  }
-  else handle404(req, res)
-
-})
-addRoute('/send-by-pc', async (req, res, isServer) => {
-  if (true) {
-    res.writeHead(200, 'Ok', {
-      'content-type': 'text/html',
-      'cache-control': 'no-cache'
-    })
-    await serverFile(req, res, 'public', 'send-by-pc.html');
-    res.end();
-  }
-  else handle404(req, res)
-
-})
-
 
 addRoute('/public/styles/main_styles.css', async (req, res) => {
   res.writeHead(200, 'Ok', {
@@ -81,6 +31,7 @@ addRoute('/public/styles/main_styles.css', async (req, res) => {
   })
   await serverFile(req, res, 'public', 'styles', 'main_styles.css');
 })
+
 addRoute("/edit-device-name", async (req, res) => {
   res.writeHead(200, 'Ok', {
     'cache-control': 'no-cache',
@@ -88,6 +39,7 @@ addRoute("/edit-device-name", async (req, res) => {
   })
   await serverFile(req, res, 'public', 'device-name.html');
 })
+
 addRoute("/connected-devices", async (req, res) => {
   let data = {}
   for (let key of connectedDevices.keys()) {

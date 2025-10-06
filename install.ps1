@@ -100,7 +100,7 @@ Set-Content -Path ".\app.ps1" -Value $content
 
 Write-Output "Running npm install..."
 try {
- npm install
+ npm install --production
  if ($lastExitCode -ne 0) {
  throw "Npm install Error "
  }

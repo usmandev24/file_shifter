@@ -222,23 +222,11 @@ function calcSize(size) {
   return fileSize;
 }
 
-addRoute("/server-send", async (req, res, isServer) => {
-  if (isServer) {
-    res.writeHead(200, "Ok", {
-      "content-type": "text/html",
-      "cache-control": "no-cache",
-    });
-    await serverFile(req, res, "public", "server-send.html");
-    res.end();
-  } else handle404(req, res);
-});
-addRoute("/receive", async (req, res, isServer) => {
-  if (true) {
-    res.writeHead(200, "Ok", {
-      "content-type": "text/html",
-      "cache-control": "no-cache",
-    });
-    await serverFile(req, res, "public", "receive.html");
-    res.end();
-  } else handle404(req, res);
-});
+addRoute('/live-send', async (req, res, isServer) => {
+  res.writeHead(200, 'Ok', {
+    'content-type': 'text/html',
+    'cache-control': 'no-cache'
+  })
+  await serverFile(req, res, 'public', 'live-send.html');
+  res.end();
+})
