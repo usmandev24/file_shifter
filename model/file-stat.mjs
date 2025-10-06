@@ -27,7 +27,7 @@ export async function varifyFile(...dirPath) {
     status = undefined;
   } 
   if (!status) {
-    const newFile =await fs.promises.writeFile(safePath, "", {"encoding" : "utf-8"})
+    const newFile =await fs.promises.writeFile(safePath, {"encoding" : "utf-8"})
     return newFile
   }
   return status
@@ -42,10 +42,8 @@ export async function chkStat(...dirPath) {
     return undefined;
   } 
 }
-export async function moveFile(oldpath = [], newPath = []) {
-  await varifyDir(newPath.pop());
-  let oldSafePath = path.join(...oldpath)
-   let newSafePath = path.join(...newPath)
-  const file = await fs.promises.rename(oldSafePath, newSafePath);
-  return file;
+
+export async function createFile(data , ...dirPath) {
+  const safePath = path.join(...dirPath)
+  return await fs.promises.writeFile(safePath, data)
 }

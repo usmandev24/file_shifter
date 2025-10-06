@@ -10,6 +10,7 @@ export function removeRouts(path) {
   routes.splice(toremove, 1);
 }
 serveFolder('public', "js");
+serveFolder('public', "images");
 import("./identityRouts.mjs")
 import("./send-to-server.mjs")
 import('./mainRoutes.mjs')

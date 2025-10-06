@@ -7,9 +7,9 @@
   </head>
   <body>
     <div
-      class="flex flex-1 justify-between items-center border-b border-base-300 m-auto"
+      class="flex flex-1 justify-between items-center-safe md:ml-12 md:mr-12 mb-2 border rounded-lg border-base-300 m-auto shadow-md"
     >
-      <div class="w-[2rem]"></div>
+      <div class="w-[4rem]"></div>
       <h1 class="text-xl lg:text-2xl p-2 ml-2 font-bold">
         <a href="/">File Shifter</a>
       </h1>
@@ -18,25 +18,19 @@
         <div
           role="button"
           tabindex="0"
-          class="btn text-xl w-8 h-12 mr-4 rotate-90"
+          class="btn btn-md lg:btn-lg btn-dash btn-ghost p-1 md:p-2 font-bold mr-2"
         >
-          |||
+          QR Code
         </div>
         <ul
-          class="dropdown-content bg-base-100 border border-gray-500 rounded-lg menu menu-vertical w-32 z-10 p-2 m-2 mr-3"
+          class="dropdown-content bg-base-100 border border-gray-500 rounded-lg  w-48 z-10 p-2 m-4 mr-3"
         >
-          <li class=""><a class="btn mb-1" href="/server-send">Send</a></li>
-          <li class="">
-            <a class="btn mb-1" href="/server-receive">Receive</a>
-          </li>
-          <li class="">
-            <a class="link link-info m-auto mt-1" href="">About</a>
-          </li>
+          <img src="/public/images/qrcode.svg" />
         </ul>
       </div>
     </div>
     <div
-      class="flex h-[calc(100vh-4rem)] p-2 md:pl-12 md:pr-12 flex-col items-center-safe justify-center-safe"
+      class="flex h-[calc(100vh-4rem)] p-2 md:pl-12 md:pr-12 gap-4 flex-col items-center-safe justify-center-safe"
     >
       <div class="card card-md md:card:md lg:card-lg xl:card:xl bg-base-300">
         <div class="card-body items-center p-4 md:p-8">
@@ -60,13 +54,15 @@
           </p>
           <div class="card-actions mt-2">
             <a class="btn btn-primary w-24" href="/live-send">🔗 Send</a>
-            <a class="btn btn-primary w-28" href="/receive"
-              >📥 Receive</a
-            >
+            <a class="btn btn-primary w-28" href="/receive">📥 Receive</a>
           </div>
         </div>
       </div>
+      <footer>
+        <p>copywrite © 2025 Usman Ghani (<a class="link-info" href="https://github.com/usmandev24">usmandev24</a>) </p>
+      </footer>
     </div>
+
     <script>
       const deviceName = localStorage.getItem("deviceName");
       const nameDiv = document.getElementById("name-div");
