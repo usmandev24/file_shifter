@@ -29,11 +29,16 @@ export const server = http.createServer(async (req, res) => {
 });
 
 function addToConnected(req, res) {
+  if (
+    req.url === "/public/styles/main_styles.css" ||
+    req.url === "/set-device-name"
+  ) return;
   const cookie = cookieParser(req.headers.cookie);
   if (!connectedDevices.has(cookie.deviceid)) {
     connectedDevices.set(cookie.deviceid, cookie.devicename)
 
-  } serverEmitter.emit("newDevice", cookie.deviceid, cookie.devicename)
+  }
+   serverEmitter.emit("newDevice", cookie.deviceid, cookie.devicename)
 }
 async function identityCheck(req, res) {
 

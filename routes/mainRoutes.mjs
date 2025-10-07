@@ -56,7 +56,8 @@ addRoute("/connected-devices", async (req, res) => {
   }, 500);
 
   function listner(id, name) {
-    if (eventEmitted.includes(id)) return;
+    if (eventEmitted.includes(id) || data[id]) return;
+    console.log(name)
     res.write(`event: newDevice\ndata: ${JSON.stringify({ [id]: name })}\n\n`)
     eventEmitted.push(id)
   }
