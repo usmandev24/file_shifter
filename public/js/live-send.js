@@ -80,10 +80,10 @@ class Share {
     const fileInput = this.fileInput
     Array.from(fileInput.files).forEach(async (file, index) => {
       const fileObj = new File(file, "pending");
-      const fileName = file.name;
+      const fileName = file["name"].replaceAll("/", "|");
       const fileSize = calcSize(file.size)
       this.matadata.push({ name: fileName, size: file.size })
-      const key = file.size + file.name
+      const key = file.size + fileName
       this.allFileObjs[key] = fileObj;
     });
     this.addListeners()

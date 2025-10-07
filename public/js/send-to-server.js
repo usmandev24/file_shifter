@@ -1,7 +1,14 @@
+let memtype;
 const file_input = document.getElementById("file-input");
 const show_files = document.getElementById("show-files");
 file_input.onchange = show;
 
+async function getMemtype() {
+  if (!memtype) {
+    memtype = await import('/public/js/memtype.js');
+  }
+}
+window.onload = async () => { await getMemtype() }
 function show() {
   let allSendFunctions = [];
   let allSendBtns = [];
@@ -155,8 +162,8 @@ FileTransfer.prototype.sendFile = async function (
     const ui = this.ui;
     const state = this.state;
     xhr.open("POST", "/send-to-server");
-
-    xhr.setRequestHeader("filename", file.name);
+    const fileName = file["name"].replaceAll("/", "|");
+    xhr.setRequestHeader("filename", fileName);
     xhr.setRequestHeader("filesize", file.size);
     xhr.setRequestHeader("lastmodified", file.lastModified);
     xhr.setRequestHeader("index", index);
@@ -387,7 +394,7 @@ function createFileUi(file) {
 
   nameRow.appendChild(nameText);
   nameRow.appendChild(sendBtn);
-  nameText.textContent = file.name + `(${fileSize})`;
+  nameText.textContent = memtype.addEmoji(file.name) + file.name + `(${fileSize})`;
   oneFileSet.appendChild(nameRow);
 
   info_Div.style.display = "none";
