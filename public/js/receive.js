@@ -5,10 +5,7 @@ const newFilesUpdates = new EventSource("/shared-files/updates")
 const statusUpdate = new EventSource("/shared-files/updates/status")
 
 let liveContainers = Object.create(null)
-window.onbeforeunload = () => {
-  newFilesUpdates.close();
-  statusUpdate.close();
-}
+window.addEventListener("load", main)
 async function main() {
   await getMemtype()
   const Data = await getFileToDownload();
@@ -34,7 +31,7 @@ async function main() {
   })
 }
 
-window.addEventListener("load", main)
+
 class FilesContainer {
   constructor(id, obj, method) {
     this.deviceId = id
@@ -63,11 +60,7 @@ class FilesContainer {
       this.allFileDatas[fileKey] = fileData;
     }
   }
-  renderLock() {
-    const lockUi = this.lockUi
-    this.dom.appendChild(lockUi.lockDiv);
-    lockUi.btn.onclick = this.unlock.bind(this)
-  }
+  
   attchEvents() {
     if (this.method === "live") {
       statusUpdate.addEventListener("liveFileUpdate", (event) => {
@@ -89,27 +82,7 @@ class FilesContainer {
 
     }
   }
-  async unlock(event) {
-    event.stopPropagation();
-    const lockUi = this.lockUi;
-    const res = await fetch("/shared-files/unlock", {
-      method: 'GET',
-      headers: {
-        "method": "live",
-        "id": this.deviceId,
-        "pass": lockUi.input.value
-      }
-    })
-    const resText = await res.text();
-    if (resText != "false") {
-      lockUi.lockDiv.remove();
-      this.filesObj = JSON.parse(resText)
-      console.log(this.filesObj)
-      this.renderFiles()
-    } else {
-      lockUi.labelText.textContent = "*Enter Password Again |"
-    }
-  }
+  
   addTitle() {
     this.dom.appendChild(el("h2", {
       className: "text-center text-lg p-4"
@@ -211,22 +184,7 @@ async function getFileToDownload() {
   const res = await fetch("/shared-files");
   return JSON.parse(await res.text())
 }
-function createLockUi() {
-  const input = document.createElement("input");
-  input.type = "text";
-  const labelText = el("span", {}, "Enter Password |")
-  const lable = el("lable", {
-    className: "input input-primary"
-  }, labelText, input)
 
-  const btn = el("div", {
-    className: "btn btn-primary"
-  }, "Ok")
-  const lockDiv = el("div", {
-    className: "flex flex-row justify-center items-center gap-2 pb-6"
-  }, lable, btn)
-  return { input, lable, labelText, btn, lockDiv }
-}
 
 function createFileUi(fileName, link) {
   //Dom Elements ;

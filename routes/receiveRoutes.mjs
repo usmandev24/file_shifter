@@ -77,40 +77,6 @@ class State {
   }
 }
 addRoute("/receive", async (req, res, isServer) => {
-  const reqID = getId(req)
-  if (receivingDevices.has(reqID)) {
-    res.writeHead(200, 'Ok', {
-      'content-type': 'text/html',
-      'cache-control': 'no-cache'
-    })
-    res.end(`
-      <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./public/styles/main_styles.css" />
-    <title>Not Allowed</title>
-  </head>
-  <body>
-    <div
-      class="flex flex-1 justify-between items-center border-b border-base-300 m-auto"
-    >
-      <div></div>
-      <h1 class="text-xl lg:text-2xl p-2 ml-2 font-bold">
-        <a href="/">File Shifter</a>
-      </h1>
-      <div></div>
-    </div>
-    <div class="text-center bg-base-300 rounded-2xl font-bold m-16">
-      <h2 class="text-xl text-warning p-4">! Recieve Page Already Open</h2>
-      <p class=" p-4" >Not Allowed! The Receive Page is Already Opened <br> Close this Tab</p>
-    </div>
-  </body>
-</html>
-
-      `)
-    return
-  }
   res.writeHead(200, "Ok", {
     "content-type": "text/html",
     "cache-control": "no-cache",
