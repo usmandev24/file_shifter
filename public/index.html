@@ -23,14 +23,14 @@
           QR Code
         </div>
         <ul
-          class="dropdown-content bg-base-100 border border-gray-500 rounded-lg  w-48 z-10 p-2 m-4 mr-3"
+          class="dropdown-content bg-base-100 border border-gray-500 rounded-lg w-48 z-10 p-2 m-4 mr-3"
         >
           <img src="/public/images/qrcode.svg" />
         </ul>
       </div>
     </div>
     <div
-      class="flex h-[calc(100vh-4rem)] flex-col pl-2 pr-2 md:pl-12 md:pr-12 items-center-safe justify-center-safe"
+      class="flex h-[calc(100vh-4rem)] flex-col pl-2 pr-2 md:pl-12 md:pr-12 gap-4 items-center-safe justify-center-safe"
     >
       <div class="card card-sm md:card:md lg:card-lg xl:card:xl bg-base-300">
         <div class="card-body items-center p-4 md:p-8">
@@ -42,39 +42,50 @@
             Wi-Fi network, or through a mobile hotspot connection (e.g.,💻PC
             connected to your 📱phone’s hotspot).
           </p>
-          <p class="p-4 text-lg">
+          <p class="p-4 text-[.9rem] md:text-lg">
             Device Name:
-            <span class="text-lg font-bold text-shadow-lg" id="name-div"></span
+            <span class="font-bold text-shadow-lg" id="name-div"></span
             ><a
-              class="rounded-full p-2 ml-2 border border-base-100 cursor-pointer bg-[var(--btn-bg)]"
+              class="ml-2 mt-[-.1rem] cursor-pointer"
               id="edit-name"
               href="/edit-device-name"
-              >🖊️</a
-            >
+              ><span style="display: inline-block; transform: scaleX(-1)"
+                >✏️</span
+              >
+            </a>
           </p>
           <div
             class="flex flex-col justify-center-safe items-center-safe gap-3 mt-4"
           >
             <a
-              class="btn btn-primary btn-md md:btn-md lg:btn-lg w-max"
+              class="btn btn-primary btn-sm md:btn-md lg:btn-lg w-max"
               href="/send-to-main-pc"
               >📤 Upload To Main PC</a
             >
             <a
-              class="btn btn-primary btn-md md:btn-md lg:btn-lg w-max"
+              class="btn btn-primary btn-sm md:btn-md lg:btn-lg w-max"
               href="/live-send"
               >🔗 Send To Any Device (💻PC/📱Mobile)</a
             >
             <a
-              class="btn btn-primary btn-md md:btn-md lg:btn-lg w-max"
+              class="btn btn-primary btn-sm md:btn-md lg:btn-lg w-max"
               href="/receive"
               >📥 Receive</a
             >
           </div>
         </div>
       </div>
+      <footer>
+        <p class="text-center text-sm opacity-80">
+          copywrite © 2025 Usman Ghani (<a
+            class="link-info"
+            href="https://github.com/usmandev24"
+            >usmandev24</a
+          >)
+        </p>
+      </footer>
     </div>
-    <footer>Copywrite</footer>
+
     <script>
       const deviceName = localStorage.getItem("deviceName");
       const nameDiv = document.getElementById("name-div");

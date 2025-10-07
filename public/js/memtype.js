@@ -100,7 +100,7 @@ export function memtype(filename){
 export function addEmoji(filename) {
   const ext = filename.slice(filename.lastIndexOf(".")+1);
   if (fileTypeEmojis[ext] != undefined) {
-    return fileTypeEmojis[ext] +" "+ filename
+    return fileTypeEmojis[ext] +" ";
   } else return filename;
 }
 const fileTypeEmojis = {

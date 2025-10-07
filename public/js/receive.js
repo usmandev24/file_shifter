@@ -41,7 +41,6 @@ class FilesContainer {
     this.dom = document.createElement("div");
     this.dom.className = "w-full mt-3 p-1 md:p-4 bg-base-100 rounded-lg"
     this.allFileDatas = Object.create(null);
-    this.lockUi = createLockUi();
     this.addTitle();
   }
   static create(id, obj, method) {
