@@ -16,7 +16,7 @@ async function sendID() {
       "id": id.visitorId
     }
   });
-  res = JSON.parse(await req.text())
+  res = JSON.parse(await res.text())
   if (res.status === "ok") {
     localStorage.setItem("deviceName", res.name)
     link.href = "/"
