@@ -13,6 +13,14 @@ addRoute('/', async (req, res, isServer) => {
   res.end();
 })
 
+addRoute('/public/vender/assets/fp.js', async (req, res) => {
+  res.writeHead(200, 'Ok', {
+    'content-type': 'application/javascript',
+    'cache-control': 'no-cache'
+  });"/node_modules/@fingerprintjs/fingerprintjs/dist/fp.js";
+  await serverFile(req, res, 'node_modules', '@fingerprintjs', "fingerprintjs", "dist", "fp.js");
+})
+
 addRoute('/send-to-main-pc', async (req, res, isServer) => {
   if (!isServer) {
     res.writeHead(200, 'Ok', {
