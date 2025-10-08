@@ -27,7 +27,7 @@ export async function varifyFile(...dirPath) {
     status = undefined;
   } 
   if (!status) {
-    const newFile =await fs.promises.writeFile(safePath, {"encoding" : "utf-8"})
+    const newFile =await fs.promises.writeFile(safePath, "" ,{"encoding" : "utf-8"})
     return newFile
   }
   return status
