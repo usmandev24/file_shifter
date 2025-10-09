@@ -88,10 +88,16 @@ How it Works
   - **Terminal**
 
   - **HomePage**
+    <img width="1304" height="608" alt="image" src="https://github.com/user-attachments/assets/d1a88bfd-b045-4e45-ae84-7ae9fa299b21" />
 
   - **Live Send**
+    - Selecting Device:
+      <img width="1304" height="608" alt="image" src="https://github.com/user-attachments/assets/7daa0fab-e43b-4d5b-a76f-5af5e6964840" />
+    - Sending Files:
+      <img width="1100" height="728" alt="image" src="https://github.com/user-attachments/assets/1037eaf1-59fa-48d6-8baa-60baf9a09563" />
 
   - **Receive**
+    <img width="1338" height="725" alt="image" src="https://github.com/user-attachments/assets/3ec8e43f-67a0-47d3-ab97-f8be6c7eba14" />
 
   - **Send To Server Direct**
 
