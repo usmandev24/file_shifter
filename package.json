@@ -1,6 +1,6 @@
 {
   "name": "file_shifter",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Share files semlessly between devices connected with same local network",
   "main": "server.mjs",
   "scripts": {
@@ -27,7 +27,6 @@
     "tailwindcss": "^4.1.12"
   },
   "dependencies": {
-    "@fingerprintjs/fingerprintjs": "^4.6.2",
     "cross-env": "^10.1.0",
     "qrcode": "^1.5.4"
   }
