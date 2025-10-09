@@ -1,3 +1,9 @@
+//-------------------------------------------------------------------------------------
+//   GNU GENERAL PUBLIC LICENSE  Version 3, 29 June 2007. see Licence file for detail.
+//
+//                Copyright (c) 2025 Usman Ghani (usmandev24) 
+//--------------------------------------------------------------------------------------
+
 import { addRoute, removeRouts } from "./addRoute.mjs";
 import EventEmitter from "node:events";
 import { PassThrough } from "node:stream";

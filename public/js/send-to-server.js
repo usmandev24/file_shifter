@@ -1,3 +1,9 @@
+//-------------------------------------------------------------------------------------
+//   GNU GENERAL PUBLIC LICENSE  Version 3, 29 June 2007. see Licence file for detail.
+//
+//                Copyright (c) 2025 Usman Ghani (usmandev24) 
+//--------------------------------------------------------------------------------------
+
 let memtype;
 const file_input = document.getElementById("file-input");
 const show_files = document.getElementById("show-files");

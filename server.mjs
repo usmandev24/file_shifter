@@ -1,3 +1,8 @@
+//-------------------------------------------------------------------------------------
+//   GNU GENERAL PUBLIC LICENSE  Version 3, 29 June 2007. see Licence file for detail.
+//
+//                Copyright (c) 2025 Usman Ghani (usmandev24) 
+//--------------------------------------------------------------------------------------
 import * as http from "node:http";
 import { checkDevice, getIpv4 } from "./model/checkDevice.mjs";
 import { routes } from "./routes/addRoute.mjs";
