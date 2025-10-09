@@ -101,7 +101,7 @@ export function addEmoji(filename) {
   const ext = filename.slice(filename.lastIndexOf(".")+1);
   if (fileTypeEmojis[ext] != undefined) {
     return fileTypeEmojis[ext] +" ";
-  } else return filename;
+  } else return "";
 }
 const fileTypeEmojis = {
   // Documents / text

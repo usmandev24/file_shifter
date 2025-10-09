@@ -18,11 +18,12 @@ async function init() {
   const deviceName = localStorage.getItem("deviceName");
   (deviceName) ? device_name.textContent = deviceName : null;
   await getMemtype();
-
+  let allOptions = new Map();
   connectedDevices.addEventListener("devices", event => {
     const data = JSON.parse(event.data); console.log(data)
     for (let key of Object.keys(data)) {
       let option = document.createElement("option");
+      allOptions.set(key, option)
       option.textContent = data[key];
       option.value = key;
       selectSkeleton.before(option)
@@ -32,7 +33,13 @@ async function init() {
   connectedDevices.addEventListener("newDevice", event => {
     const data = JSON.parse(event.data); console.log(data)
     for (let key of Object.keys(data)) {
-      let option = document.createElement("option");
+      if (allOptions.has(key)) {
+        let option = allOptions.get(key)
+        option.textContent = data[key]
+        return;
+      }
+      const option = document.createElement("option");
+      allOptions.set(key, option)
       option.textContent = data[key];
       option.value = key;
       selectSkeleton.before(option)

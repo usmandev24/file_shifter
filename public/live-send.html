@@ -19,6 +19,7 @@
         <div
           role="button"
           tabindex="0"
+          id="qrcode"
           class="btn btn-md lg:btn-lg btn-dash btn-ghost p-1 md:p-2 font-bold mr-2"
         >
           QR Code
@@ -49,8 +50,8 @@
           </p>
 
           <div class="flex flex-col justify-center-safe items-center-safe gap-4 mt-4">
-            <div class="flex flex-row items-baseline justify-between">
-              <p class="w-[8rem]  md:pr-2 pr-1 pl-1">Send To :</p>
+            <div class="flex flex-row items-baseline w-full">
+              <p class="w-[8rem] md:pr-2 pr-1 pl-1">Send To :</p>
               <select
                 id="select"
                 class="select select-secondary disabled:text-info"
@@ -59,14 +60,17 @@
                 <option id="select-skeleton"  disabled class="skeleton h-6 w-full"></option>
               </select>
               <div class="dropdown dropdown-end md:dropdown-center">
-              <div tabindex="0" role="button" class="text-[0.8rem] pl-2">❔</div>
+              <div tabindex="0" role="button" class="pl-2 w-max">
+                <span class="text-xs border p-[0.04rem]  opacity-90">help ? </span> 
+              </div>
               <div
                 class="dropdown-content z-10 w-60 md:w-100 bg-base-100 p-4 shadow-2xl rounded-lg"
               >
                 <p class="text-sm">
                   ⓘ <b>Devices list are updated live. </b><br>If 
-                  device you are looking for not found than ask them to open
-                  this app link in there browser.
+                  Device not found than share the <a class="link link-info" href="#qrcode">Qr code</a> .<br>
+                  <span class="text-warning font-bold">Warning: Carefully match the 4 digit pin after device name.
+                  </span>
                 </p>
               </div>
             </div>
