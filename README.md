@@ -14,11 +14,7 @@ File Shifter is a local web server for transferring and streaming files between 
   - Windows: installation & first run
   - Manual start
 - How it works
-- Learning objectives
-- Future enhancements
 - License
-- Credits
-- Demo / screenshots
 
 ## Features
 
@@ -52,9 +48,10 @@ File Shifter is a local web server for transferring and streaming files between 
   - Cookie parsing and handling
   - URL parsing and routing
   - Stream-based file I/O and chunked transfers
-- Frontend: HTML5 + Vanilla JavaScript
+  - Device Identity verification.
+- Frontend: HTML5 + Vanilla JavaScript + Tailwind CSS.
 - Installer: PowerShell script (`install.ps1`)
-- Purpose: Educational — to implement and observe how Express-like features operate at a lower level
+- **Purpose: Educational** — to implement and observe how Express-like features operate at a lower level
 
 ## Installation & usage
 
@@ -66,6 +63,43 @@ Follow these exact steps to install and launch on Windows.
 2. Temporarily allow script execution for this session:
    ```powershell
    Set-ExecutionPolicy Bypass
-**Internet connection required for installation**
-3. Extract the zip file and run `install.ps1` run with powershell
-4. Than a new `app.ps1` will be created run it with powershell also
+3. **Than connect to Internet about 40mb of data required for first time installation**.
+
+4. Donload **File shifter** and than Extract the zip file and run `install.ps1` run with powershell.
+
+5. Than a new `app.ps1` will be created run it with powershell also.
+### Linux: Installation & First Run 
+
+1. Install nodejs first. Install dependencies and start.
+Go to file_shifter dir and open it 
+with terminal.
+    ```bash
+    sudo apt install nodejs
+    npm install
+    npm start
+
+How it Works
+  -
+- Follow the instruction given in terminal.
+- THe user interface is easy and user focused so you will easily find what to do. 
+- THe screeshot are given here:
+
+### ScreenShots
+  - **Terminal**
+
+  - **HomePage**
+
+  - **Live Send**
+
+  - **Receive**
+
+  - **Send To Server Direct**
+
+## Licence
+**GNU GENERAL PUBLIC LICENSE
+                       Version 3, 29 June 2007.**
+  
+**Copyright (c) 2025 Usman Ghani**
+
+  
+  
