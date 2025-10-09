@@ -73,14 +73,11 @@ server.on("error", (err) => {
   console.log(err);
 });
 server.on("listening", () => {
-  console.log(`
-----------------------------------------------------------------------------------
-
+  console.log(
+`------------------------------------------------------------------------
                 Welcome to seemless file sharing Web-App.
-
           Copywrite 2025 "USMAN GHANI" https://github.com/usmandev24
-
-----------------------------------------------------------------------------------
+-------------------------------------------------------------------------
                                  
 ------>   On this PC enter http://localhost:${port} in browser `);
   if (!getIpv4()) {
@@ -88,16 +85,24 @@ server.on("listening", () => {
 *****    !!!  NO Network connected  ***********`);
     return;
   }
-  console.log(
-    `------>   On Other device Mobile/PC go to http://${getIpv4()}:${port}`
-  );
+  
   try {
     qrcode
       .toString(`http://${getIpv4()}:4000`, { small: true, type: "terminal" })
       .then((q) => {
         console.log(`
-Or Scan:
+On Other device (Mobile/PC) Scan QrCode:
 ${q}`);
+console.log(
+    `OR on other device PC/Mobile enter http://${getIpv4()}:${port} in browser.
+    
+    Note:
+          1. Files which are directly sended to Main PC
+             will be saved in :--- "direct_recieved_files" folder
+             in file_shifter App folder.
+
+          2. And Live Received file will be saved in "Download" folder of User`
+  );
       });
     qrcode
       .toString(`http://${getIpv4()}:4000`, { small: true, type: "svg" })
