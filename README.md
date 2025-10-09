@@ -87,6 +87,8 @@ How it Works
 ### ScreenShots
   - **Terminal**
 
+    <img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/0257998c-cb7f-4ecf-9c4a-93dbb06b1601" />
+
   - **HomePage**
     <img width="1304" height="608" alt="image" src="https://github.com/user-attachments/assets/d1a88bfd-b045-4e45-ae84-7ae9fa299b21" />
 
