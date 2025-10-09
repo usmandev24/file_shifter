@@ -51,7 +51,7 @@ if ((Get-Command node -ErrorAction SilentlyContinue) -and (Get-Command npm -Erro
     Write-Output "........ do not close this window (even progress is not showing but download is happening.)"
     $ProgressPreference = 'SilentlyContinue'
     try {
-    #Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath -UseBasicParsing -ErrorAction Stop
+    Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath -UseBasicParsing -ErrorAction Stop
     Write-Output "Download completed successfully."
 } catch {
     Write-Output "Download failed: $($_.Exception.Message)"
@@ -100,7 +100,7 @@ Set-Content -Path ".\app.ps1" -Value $content
 
 Write-Output "Running npm install..."
 try {
- npm install --production
+ npm install --omit=dev
  if ($lastExitCode -ne 0) {
  throw "Npm install Error "
  }
