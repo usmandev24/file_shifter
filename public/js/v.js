@@ -1,21 +1,10 @@
 
-async function getfpId() {
-  const fp = FingerprintJS;
-  let load = await fp.load()
-  let data = await load.get();
-  console.log(data)
-  return data
-}
 const link = document.createElement("a");
 const info = document.getElementById("p");
 
-async function sendID() {
-  const id = await getfpId()
-  let res = await fetch("/set-device-id", {
-    headers: {
-      "id": id.visitorId
-    }
-  });
+async function verify() {
+  
+  let res = await fetch("/set-device-id");
   res = JSON.parse(await res.text())
   if (res.status === "ok") {
     localStorage.setItem("deviceName", res.name)
@@ -33,4 +22,4 @@ async function sendID() {
   }
 }
 
-window.onload = sendID
+window.onload = verify;

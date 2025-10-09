@@ -13,14 +13,6 @@ addRoute('/', async (req, res, isServer) => {
   res.end();
 })
 
-addRoute('/public/vender/assets/fp.js', async (req, res) => {
-  res.writeHead(200, 'Ok', {
-    'content-type': 'application/javascript',
-    'cache-control': 'no-cache'
-  });"/node_modules/@fingerprintjs/fingerprintjs/dist/fp.js";
-  await serverFile(req, res, 'node_modules', '@fingerprintjs', "fingerprintjs", "dist", "fp.js");
-})
-
 addRoute('/send-to-main-pc', async (req, res, isServer) => {
   if (!isServer) {
     res.writeHead(200, 'Ok', {
@@ -65,13 +57,17 @@ addRoute("/connected-devices", async (req, res) => {
 
   function listner(id, name) {
     if (eventEmitted.includes(id) || data[id]) return;
-    console.log(name)
     res.write(`event: newDevice\ndata: ${JSON.stringify({ [id]: name })}\n\n`)
     eventEmitted.push(id)
   }
+  function nameListner(id, name) {
+    res.write(`event: newDevice\ndata: ${JSON.stringify({ [id]: name })}\n\n`)
+  }
   serverEmitter.on("newDevice", listner);
+  serverEmitter.on("nameChange", nameListner)
   req.on("close", () => {
     serverEmitter.removeListener("newDevice", listner)
+    serverEmitter.removeListener("nameChange", nameListner)
   })
 })
 

@@ -8,6 +8,7 @@ import { serverFile } from "./model/serveStatic.mjs";
 import EventEmitter from "node:events";
 import { createFile, varifyDir } from "./model/file-stat.mjs";
 
+
 export let connectedDevices = new Map();
 export const serverEmitter = new EventEmitter();
 export const port = 4000;
@@ -30,14 +31,20 @@ const allowedRouts = [
   "/public/styles/main_styles.css",
   "/set-device-id",
   "/set-device-name",
-  "/public/vender/assets/fp.js",
   "/public/js/v.js",
   "/edit-device-name",
 ];
 function addToConnected(req, res) {
   if (allowedRouts.includes(req.url)) return;
   const cookie = cookieParser(req.headers.cookie);
-  if (!connectedDevices.has(cookie.deviceid)) {
+
+  if (connectedDevices.has(cookie.deviceid)) {
+    let name = connectedDevices.get(cookie.deviceid);
+    if (name != cookie.devicename) {
+      connectedDevices.set(cookie.deviceid, cookie.devicename);
+      serverEmitter.emit("nameChange", cookie.deviceid, cookie.devicename)
+    }
+  } else {
     connectedDevices.set(cookie.deviceid, cookie.devicename);
   }
   serverEmitter.emit("newDevice", cookie.deviceid, cookie.devicename);

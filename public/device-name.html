@@ -72,8 +72,16 @@
       const info = document.getElementById("info");
       const btn = document.getElementById("btn")
 
+      function generateID () {
+        let id = ""
+        for (let v = 0; v<4; v++) {
+          let n = String(Math.floor(Math.random() * 10));
+          id += n
+        }
+        return id;
+      }
       async function fetchV(value="") {
-        value = value.replace(/&/ig, "-")
+
         const req = await fetch("/set-device-name", {
           method: "GET", 
           headers: {
@@ -87,6 +95,7 @@
         } else false;
       }
       btn.onclick = async (event) => {
+        input.value = input.value.replace("=", "-") + " " + `(${generateID()})`
         const r = await fetchV(input.value);
         if (r) {
           info.textContent = "✅ Device Name :  "+input.value ;
@@ -96,7 +105,8 @@
           setTimeout(() => {
             home.click()
           }, 1000);
-          localStorage.setItem("deviceName", input.value)
+          
+          localStorage.setItem("deviceName",input.value)
         } 
         else {
           input.value = "";
