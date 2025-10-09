@@ -162,7 +162,7 @@ FileTransfer.prototype.sendFile = async function (
     const ui = this.ui;
     const state = this.state;
     xhr.open("POST", "/send-to-server");
-    const fileName = file["name"].replaceAll("/", "|");
+    const fileName = file["name"].replaceAll(/\/|\\/ig, "_");
     xhr.setRequestHeader("filename", fileName);
     xhr.setRequestHeader("filesize", file.size);
     xhr.setRequestHeader("lastmodified", file.lastModified);

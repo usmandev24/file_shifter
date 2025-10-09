@@ -23,6 +23,7 @@ addRoute("/send-to-server", async (req, res, isServer) => {
   await varifyDir("temp", "to-receive");
   let { filename, filesize, lastmodified, chunksize, index, islast, status } =
     req.headers;
+  filename = filename.replaceAll(/\/|\\/ig, "_");
   filesize = Number(filesize);
   chunksize = Number(chunksize);
   index = Number(index);

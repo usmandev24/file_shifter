@@ -2,7 +2,6 @@ import { addRoute, removeRouts } from "./addRoute.mjs";
 import EventEmitter from "node:events";
 import { PassThrough } from "node:stream";
 import { serverFile } from "../model/serveStatic.mjs";
-import { createServer, get } from "node:http";
 import cookieParser from "../model/cookie_parser.mjs";
 import { memtype } from "../model/memtype.mjs";
 
@@ -46,6 +45,7 @@ addRoute("/relay-from-server/file-meta-data", async (req, res) => {
 function addLinksRouts(deviceID, metaData) {
   let allFilesObj = Object.create(null);
   for (let file of metaData) {
+    file.name = file["name"].replaceAll(/\/|\\/ig, "_")
     const url = `/relay-from-server/file?name=${encodeURIComponent(file.name)}$device-id=${encodeURIComponent(deviceID)}`;
     const fileKey = file.size + file.name;
     const fileInfo = Object.create(null);

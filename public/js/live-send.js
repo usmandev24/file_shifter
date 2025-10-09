@@ -87,7 +87,7 @@ class Share {
     const fileInput = this.fileInput
     Array.from(fileInput.files).forEach(async (file, index) => {
       const fileObj = new File(file, "pending");
-      const fileName = file["name"].replaceAll("/", "|");
+      const fileName = file["name"].replaceAll(/\/|\\/ig, "_")
       const fileSize = calcSize(file.size)
       this.matadata.push({ name: fileName, size: file.size })
       const key = file.size + fileName
@@ -182,11 +182,12 @@ class File {
   async liveSend() {
     try {
       const file = this.file;
+      const filename = file["name"].replaceAll(/\/|\\/ig, "_")
       const res = await fetch('/relay-from-server/make', {
         method: "POST",
         body: file,
         headers: {
-          "filename": file.name,
+          "filename": filename,
           "filesize": file.size
         }
       });
@@ -239,7 +240,8 @@ function createFileUi(file) {
 
   nameRow.appendChild(nameText);
   nameRow.appendChild(loadStatDiv);
-  nameText.textContent = memtype.addEmoji(file.name) + file.name + `(${fileSize})`;
+  const filename = file["name"].replaceAll(/\/|\\/ig, "_")
+  nameText.textContent = memtype.addEmoji(filename) + filename + `(${fileSize})`;
   oneFileSet.appendChild(nameRow);
   show_files.appendChild(oneFileSet);
   return {
