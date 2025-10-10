@@ -36,20 +36,23 @@
     >
       <div class="card card-md md:card:md lg:card-lg xl:card-xl bg-base-300">
         <div class="card-body items-center p-4 md:p-8">
-          <h2 class="card-title text-xl mt-3">
+          <h2 class="card-title text-center text-xl mt-3">
             Live Send Files To Any Device (PC/Mobile)
           </h2>
           <p
-            class="mt-3 text-lg text-[1rem] text-center alert alert-warning alert-soft"
+            class="mt-3 text-lg text-[1rem] p-2 text-center alert alert-warning alert-soft"
           >
             Live sending will be canceled as you leave this page.
           </p>
-          <p class="mt-3 text-lg text-[1rem] text-center alert">
+          <p class="mt-3 text-lg p-2 text-[1rem] text-center alert">
             Choose the files you want to send. Open the receive page of
             receiving device to start the transfer.
           </p>
-
-          <div class="flex flex-col justify-center-safe items-center-safe gap-4 mt-4">
+          <p class="p-1 mt-2  text-[.9rem] md:text-lg">
+            Live Sending as :
+            <span class="font-bold text-shadow-lg" id="name-div"></span>
+          </p>
+          <div class="flex flex-col justify-center-safe items-center-safe gap-4 mt-2">
             <div class="flex flex-row items-baseline w-full">
               <p class="w-[8rem] md:pr-2 pr-1 pl-1">Send To :</p>
               <select
@@ -84,10 +87,6 @@
               class="input file-input file-input-primary active:file-input-success"
             />
           </div>
-          <p id="device-name-div" class="hidden alert alert-info alert-soft">
-            Live Sending as:
-            <span class="font-bold" id="device-name"></span>
-          </p>
           <div
             class="hidden w-full p-1 md:p-4 bg-base-100 rounded-lg mt-3"
             id="show-files"
@@ -98,11 +97,16 @@
             class="break-words text-4xl m-16 rounded-2xl text-[0.85rem] h-8 font-bold md:text-[1rem] btn-primary m-auto flex-col align-middle text-secondary, text-primary, text-info, progress-info, progress-error, progress-secondary, alert-error"
           ></div>
           <div id="cancel-btn" class="hidden mt-3">
-            <a href="/live-send" class="btn btn-error w-[15rem]">Cancel</a>
+            <a href="/live-send" class="btn btn-error opacity-80 dark:opacity-100 w-[15rem]">Cancel</a>
           </div>
         </div>
       </div>
     </div>
+    <script>
+      const deviceName = localStorage.getItem("deviceName");
+      const nameDiv = document.getElementById("name-div");
+      nameDiv.textContent = deviceName;
+    </script>
     <script src="/public/js/live-send.js"></script>
   </body>
 </html>

@@ -7,8 +7,6 @@
 let memtype;
 const file_input = document.getElementById("file-input");
 const show_files = document.getElementById("show-files");
-const device_name = document.getElementById("device-name");
-const device_nameDiv = document.getElementById("device-name-div")
 const select = document.getElementById("select");
 const selectSkeleton = document.getElementById("select-skeleton")
 const canclebtn = document.getElementById("cancel-btn")
@@ -21,8 +19,6 @@ file_input.onchange = liveShare
 window.onload = init;
 
 async function init() {
-  const deviceName = localStorage.getItem("deviceName");
-  (deviceName) ? device_name.textContent = deviceName : null;
   await getMemtype();
   let allOptions = new Map();
   connectedDevices.addEventListener("devices", event => {

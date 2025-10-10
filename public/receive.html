@@ -35,21 +35,20 @@
     >
       <div class="card card-sm md:card:md lg:card-lg xl:card-xl bg-base-300">
         <div class="card-body items-center">
-          <h2 class="card-title text-xl mt-2">
+          <h2 class="card-title text-xl mt-2 text-center">
             📥 Receive Files Form Any Device
           </h2>
           <p
-            class="mt-2 text-lg text-[1rem] text-center alert alert-info alert-soft"
+            class="mt-2 text-lg text-[1rem] p-2 text-center alert alert-info alert-soft"
           >
             Open this page on the device where you want to receive files. Make
             sure both devices are connected to the same 🌐 Wi-Fi or hotspot.
-            When the sender selects files, they will appear here for you to
-            download.
           </p>
-
+          <p class="p-1 mt-2 text-[.9rem] md:text-lg">
+            Receiving as :
+            <span class="font-bold text-shadow-lg" id="name-div"></span>
+          </p>
           <div class="w-full" id="show-containers"></div>
-
-          <div class="w-full mt-3" id="folder-container"></div>
           <div class="flex flex-col justify-center-safe items-center-safe  w-full  gap-2">
             <div class="skeleton h-8 w-[70vw]"></div>
             <div class="skeleton h-8 w-full"></div>
@@ -58,6 +57,11 @@
         </div>
       </div>
     </div>
+    <script>
+      const deviceName = localStorage.getItem("deviceName");
+      const nameDiv = document.getElementById("name-div");
+      nameDiv.textContent = deviceName;
+    </script>
     <script src="/public/js/receive.js"></script>
   </body>
 </html>
