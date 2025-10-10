@@ -11,7 +11,7 @@ import { memtype } from "./memtype.mjs";
 import { varifyDir } from "./file-stat.mjs";
 
 export async function serveFolder(...paths) {
-  await varifyDir(...paths)
+  
   let safePath = path.join(...paths);
   let files = await fs.promises.readdir(safePath);
   for(let file of files) {

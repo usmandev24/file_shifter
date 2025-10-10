@@ -56,7 +56,7 @@ function addLinksRouts(deviceID, metaData) {
     const fileKey = file.size + file.name;
     const fileInfo = Object.create(null);
     fileInfo.key = fileKey;
-    fileInfo.name = file.name + `(${calcSize(file.size)})`;
+    fileInfo.name = file.name + ` (${calcSize(file.size)})`;
     fileInfo.size = file.size;
     fileInfo.status = "pending";
     fileInfo.link = url;
@@ -76,10 +76,10 @@ function addLinksRouts(deviceID, metaData) {
           return;
         }
         stream = STREAMS[deviceID][fileKey]
-      }
+      } 
       const type = memtype(file.name);
       res.writeHead(200, "OK", {
-        "content-disposition": `attachment; filename=${file.name}`,
+        "content-disposition": `attachment; filename=${file["name"].slice(0, file["name"].lastIndexOf("("))}`,
         "content-type": type,
         "content-length": file.size
       });
