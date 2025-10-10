@@ -58,16 +58,9 @@ File Shifter is a local web server for transferring and streaming files between 
 ### Windows: Installation & First Run (exact procedure)
 Follow these exact steps to install and launch on Windows.
 
-1. Open PowerShell as Administrator.
+1. Donload **File shifter** from release page and than Extract the zip file and run `install.cmd` This will install Node.js and npm packages.
 
-2. Temporarily allow script execution for this session:
-   ```powershell
-   Set-ExecutionPolicy Bypass
-3. **Than connect to Internet about 40mb of data required for first time installation**.
-
-4. Donload **File shifter** and than Extract the zip file and run `install.ps1` run with powershell.
-
-5. Than a new `app.ps1` will be created run it with powershell also.
+2. Than a new `App.bat` will be created run it.
 ### Linux: Installation & First Run 
 
 1. Install nodejs first. Install dependencies and start.
