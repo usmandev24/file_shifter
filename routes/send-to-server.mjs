@@ -87,6 +87,9 @@ addRoute("/send-to-server", async (req, res, isServer) => {
       let moveWriteStream = fs.createWriteStream(path.join(...movePath));
       readstream.pipe(moveWriteStream);
       readstream.on("end", async () => {
+        console.log("")
+        console.log(`Directly Received --> ${filename}`)
+        console.log(`   Saved to: direct_received_file${path.sep+filename}`)
         await fs.promises.unlink(writePath);
       });
     } else {

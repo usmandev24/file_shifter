@@ -1,6 +1,6 @@
 {
   "name": "file_shifter",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "Share files semlessly between devices connected with same local network",
   "main": "server.mjs",
   "scripts": {

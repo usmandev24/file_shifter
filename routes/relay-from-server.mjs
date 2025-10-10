@@ -56,7 +56,7 @@ function addLinksRouts(deviceID, metaData) {
     const fileKey = file.size + file.name;
     const fileInfo = Object.create(null);
     fileInfo.key = fileKey;
-    fileInfo.name = file.name;
+    fileInfo.name = file.name + `(${calcSize(file.size)})`;
     fileInfo.size = file.size;
     fileInfo.status = "pending";
     fileInfo.link = url;
@@ -249,7 +249,7 @@ addRoute('/live-send', async (req, res, isServer) => {
       </h1>
       <div></div>
     </div>
-    <div class="text-center bg-base-300 rounded-2xl font-bold m-16">
+    <div class="text-center bg-base-300 rounded-2xl font-bold m-4 md:m-16">
       <h2 class="text-xl text-warning p-4">! Live Send Page Already Open</h2>
       <p class=" p-4" >This Page is Already Opened <br> Close this Tab</p>
     </div>

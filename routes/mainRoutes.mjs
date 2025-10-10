@@ -99,7 +99,7 @@ export function handle404(req, res) {
       </h1>
       <div></div>
     </div>
-    <div class="text-center bg-base-300 rounded-2xl font-bold m-16">
+    <div class="text-center bg-base-300 rounded-2xl font-bold m-4 md:m-16">
       <h2 class="text-4xl text-error p-4">404</h2>
       <p class=" p-4" >No such page exit<br>Go back to <a class= "link link-info" href= "/">homepage</a></p>
     </div>

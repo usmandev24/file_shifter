@@ -1,7 +1,7 @@
 //-------------------------------------------------------------------------------------
 //   GNU GENERAL PUBLIC LICENSE  Version 3, 29 June 2007. see Licence file for detail.
 //
-//                Copyright (c) 2025 Usman Ghani (usmandev24) 
+//                Copyright (c) 2025 Usman Ghani (usmandev24)
 //--------------------------------------------------------------------------------------
 import * as http from "node:http";
 import { checkDevice, getIpv4 } from "./model/checkDevice.mjs";
@@ -12,7 +12,6 @@ import cookieParser from "./model/cookie_parser.mjs";
 import { serverFile } from "./model/serveStatic.mjs";
 import EventEmitter from "node:events";
 import { createFile, varifyDir } from "./model/file-stat.mjs";
-
 
 export let connectedDevices = new Map();
 export const serverEmitter = new EventEmitter();
@@ -47,7 +46,7 @@ function addToConnected(req, res) {
     let name = connectedDevices.get(cookie.deviceid);
     if (name != cookie.devicename) {
       connectedDevices.set(cookie.deviceid, cookie.devicename);
-      serverEmitter.emit("nameChange", cookie.deviceid, cookie.devicename)
+      serverEmitter.emit("nameChange", cookie.deviceid, cookie.devicename);
     }
   } else {
     connectedDevices.set(cookie.deviceid, cookie.devicename);
@@ -56,7 +55,7 @@ function addToConnected(req, res) {
 }
 
 async function identityCheck(req, res) {
-  if (allowedRouts.includes(req.url))  return true;
+  if (allowedRouts.includes(req.url)) return true;
   const cookie = cookieParser(req.headers.cookie);
   if (!cookie) {
     await serverFile(req, res, "public", "varification.html");
@@ -73,36 +72,27 @@ server.on("error", (err) => {
   console.log(err);
 });
 server.on("listening", () => {
-  console.log(
-`------------------------------------------------------------------------
+  console.log(`------------------------------------------------------------------------
                 Welcome to seemless file sharing Web-App.
-          Copywrite 2025 "USMAN GHANI" https://github.com/usmandev24
+          Copyright (C) 2025 "USMAN GHANI" https://github.com/usmandev24
 -------------------------------------------------------------------------
                                  
------->   On this PC enter http://localhost:${port} in browser `);
+---> In this PC Enter http://localhost:${port} in browser.`);
   if (!getIpv4()) {
     console.log(`
 *****    !!!  NO Network connected  ***********`);
     return;
   }
-  
+
   try {
     qrcode
       .toString(`http://${getIpv4()}:4000`, { small: true, type: "terminal" })
       .then((q) => {
         console.log(`
-On Other device (Mobile/PC) Scan QrCode:
-${q}`);
-console.log(
-    `OR on other device PC/Mobile enter http://${getIpv4()}:${port} in browser.
-    
-    Note:
-          1. Files which are directly sended to Main PC
-             will be saved in :--- "direct_recieved_files" folder
-             in file_shifter App folder.
+---> On Other device Enter http://${getIpv4()}:${port} in browser.
+---> OR  Scan QrCode:
 
-          2. And Live Received file will be saved in "Download" folder of User`
-  );
+${q}`);
       });
     qrcode
       .toString(`http://${getIpv4()}:4000`, { small: true, type: "svg" })

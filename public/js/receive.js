@@ -10,6 +10,10 @@ const emitter = new EventTarget();
 const newFilesUpdates = new EventSource("/shared-files/updates")
 const statusUpdate = new EventSource("/shared-files/updates/status")
 
+window.onbeforeunload = () => {
+  newFilesUpdates.close();
+  statusUpdate.close();
+}
 let liveContainers = Object.create(null)
 window.addEventListener("load", main)
 async function main() {
@@ -31,7 +35,6 @@ async function main() {
   })
   statusUpdate.addEventListener("liveShareCanceled", (event) => {
     const data = JSON.parse(event.data);
-    console.log(data + "hello");
     const toClear = liveContainers[data.id];
     toClear.remove();
   })
@@ -75,12 +78,10 @@ class FilesContainer {
           const fileData = this.allFileDatas[filekey];
           fileData.update(data.status);
           if (data.status === "completed" || data.status === "Canceled") {
-            console.log("in completed or cancel")
             this.onComplete(filekey)
           } else if (Number(data.status) != NaN) {
             this.onDown(filekey)
           }
-          console.log(data.status)
         }
       })
     } else if (this.method === "bypc") {
@@ -220,9 +221,10 @@ function createFileUi(fileName, link) {
     className: "w-max  text-[0.8rem] md:text-[1rem]",
   }, "");
   const downBtn = el("a", {
+    target : "_blank",
     href: link,
     className: "text-[1.2rem] md:text-[1.4rem]"
-  }, "📥")
+  }, "⬇️")
 
   const loadStatDiv = el("div", {
     className: "ml-auto pl-2 flex justify-between align-center-safe gap-2"
@@ -230,7 +232,8 @@ function createFileUi(fileName, link) {
 
   nameRow.appendChild(nameText);
   nameRow.appendChild(loadStatDiv);
-  nameText.textContent = memtype.addEmoji(fileName) + fileName;
+  
+  nameText.textContent = memtype.addEmoji(fileName.slice(0, fileName.lastIndexOf("("))) + fileName;
   oneFileSet.appendChild(nameRow);
   return {
     oneFileSet, nameRow, nameText, loadStatDiv, statusText, loading, progress
@@ -254,3 +257,4 @@ async function getMemtype() {
     memtype = await import('/public/js/memtype.js');
   }
 }  
+

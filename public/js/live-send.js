@@ -22,7 +22,7 @@ async function init() {
   await getMemtype();
   let allOptions = new Map();
   connectedDevices.addEventListener("devices", event => {
-    const data = JSON.parse(event.data); console.log(data)
+    const data = JSON.parse(event.data); 
     for (let key of Object.keys(data)) {
       let option = document.createElement("option");
       allOptions.set(key, option)
@@ -33,7 +33,7 @@ async function init() {
   })
 
   connectedDevices.addEventListener("newDevice", event => {
-    const data = JSON.parse(event.data); console.log(data)
+    const data = JSON.parse(event.data); 
     for (let key of Object.keys(data)) {
       if (allOptions.has(key)) {
         let option = allOptions.get(key)
@@ -112,30 +112,28 @@ class Share {
 
   addListeners() {
     this.filetoSend.addEventListener("tosend", async event => {
-      this.sendingCount += 1; console.log("start" + this.sendingCount);
+      this.sendingCount += 1; 
       if (this.sendingCount > 2) {
         return;
       }
-      const tosend = event.data
-      console.log(event.data)
+      const tosend = event.data 
       const res = await this.allFileObjs[tosend].liveSend();
       if (this.sendingCount > 0) this.sendingCount -= 1;
-      console.log("end" + this.sendingCount);
     })
     this.statusSource.addEventListener("update", event => {
       const obj = JSON.parse(event.data)
-      console.log(obj)
       const key = Object.keys(obj)[0];
       this.allFileObjs[key].update(obj[key]);
     })
   }
 
-  close() {
-    this.statusSource.close();
-    this.filetoSend.close();
+  async close() {
+    if (confirm("Do you want to cancel Live Sending?")) {
+      this.statusSource.close();
+      this.filetoSend.close();
+    }
   }
 }
-
 
 class File {
   constructor(file, status = "") {
