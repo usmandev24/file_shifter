@@ -233,7 +233,7 @@ function createFileUi(fileName, link) {
   nameRow.appendChild(nameText);
   nameRow.appendChild(loadStatDiv);
   
-  nameText.textContent = memtype.addEmoji(fileName.slice(0, fileName.lastIndexOf("("))) + fileName;
+  nameText.textContent = memtype.addEmoji(fileName.slice(0, fileName.lastIndexOf("(")-1)) + fileName;
   oneFileSet.appendChild(nameRow);
   return {
     oneFileSet, nameRow, nameText, loadStatDiv, statusText, loading, progress
