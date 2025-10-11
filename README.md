@@ -79,26 +79,24 @@ How it Works
 
 ### ScreenShots
   - **Terminal**
-    <img width="821" height="661" alt="Screenshot From 2025-10-11 11-36-28" src="https://github.com/user-attachments/assets/66eceff9-b61d-40e5-8723-594cee0f927e" />
+    - <img width="821" height="661" alt="Screenshot From 2025-10-11 11-36-28" src="https://github.com/user-attachments/assets/66eceff9-b61d-40e5-8723-594cee0f927e" />
 
   - **HomePage**
-    <img width="1304" height="608" alt="image" src="https://github.com/user-attachments/assets/d1a88bfd-b045-4e45-ae84-7ae9fa299b21" />
+    - <img width="700" height="300" alt="image" src="https://github.com/user-attachments/assets/d1a88bfd-b045-4e45-ae84-7ae9fa299b21" />
     - Light theme:
-    - <img width="1317" height="722" alt="image" src="https://github.com/user-attachments/assets/8d5ad588-9566-4514-9dae-893e6fd6a4f9" />
+    - <img width="700" height="350" alt="image" src="https://github.com/user-attachments/assets/8d5ad588-9566-4514-9dae-893e6fd6a4f9" />
 
   - **Live Send**
     - Selecting Device:
-      <img width="1304" height="608" alt="image" src="https://github.com/user-attachments/assets/7daa0fab-e43b-4d5b-a76f-5af5e6964840" />
+    - <img width="700" height="304" alt="image" src="https://github.com/user-attachments/assets/7daa0fab-e43b-4d5b-a76f-5af5e6964840" />
     - Sending Files:
-      <img width="1100" height="728" alt="image" src="https://github.com/user-attachments/assets/1037eaf1-59fa-48d6-8baa-60baf9a09563" />
+      - <img width="600" height="350" alt="image" src="https://github.com/user-attachments/assets/1037eaf1-59fa-48d6-8baa-60baf9a09563" />
     - Light theme:
-      <img width="1316" height="728" alt="Screenshot From 2025-10-11 11-29-16" src="https://github.com/user-attachments/assets/8d520919-0000-4785-ae9f-2efb3089b417" />
+      - <img width="700" height="350" alt="Screenshot From 2025-10-11 11-29-16" src="https://github.com/user-attachments/assets/8d520919-0000-4785-ae9f-2efb3089b417" />
   - **Receive**
-    ![Screenshot_2025-10-11-11-31-32-331_com android chrome](https://github.com/user-attachments/assets/3fb3e931-64d6-4d60-adb7-86c14a940e7a)
-
-
+    - <img width="320" height = "800"  src= "https://github.com/user-attachments/assets/3fb3e931-64d6-4d60-adb7-86c14a940e7a"/>
   - **Send To Server Direct**
-    ![Screenshot_2025-10-11-11-32-49-012_com android chrome](https://github.com/user-attachments/assets/059cb105-d36f-46ef-8a3a-3837a54747b0)
+    - <img width="320" height = "800"  src= "https://github.com/user-attachments/assets/059cb105-d36f-46ef-8a3a-3837a54747b0"/>
 
 
 ## Licence
